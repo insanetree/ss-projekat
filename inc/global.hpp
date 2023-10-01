@@ -4,6 +4,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <unordered_map>
+#include <regex>
 
 using namespace std;
 

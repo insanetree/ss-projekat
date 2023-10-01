@@ -7,6 +7,8 @@ CPP=g++
 CPPFLAGS=-I${INCDIR} -std=c++11
 
 SRC=$(wildcard $(SRCDIR)/*.cpp)
+SRC+="$(SRCDIR)/lexer.cpp"
+SRC+="$(SRCDIR)/parser.cpp"
 OBJ=$(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRC))
 DEP=$(patsubst $(SRCDIR)/%.cpp,$(DEPDIR)/%.d,$(SRC))
 
@@ -40,6 +42,12 @@ $(DEPDIR)/%.d: $(SRCDIR)/%.cpp
 	$(CPP) $(CPPFLAGS) -MM -MT $(OBJDIR)/$*.o $< > $@
 
 include $(DEP)
+
+$(SRCDIR)/lexer.cpp: misc/lexer.l
+	flex misc/lexer.l
+
+$(SRCDIR)/parser.cpp: misc/parser.y misc/lexer.l
+	bison misc/parser.y
 
 clean:
 	rm -rf build
