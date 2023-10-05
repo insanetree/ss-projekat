@@ -7,8 +7,8 @@ CPP=g++
 CPPFLAGS=-I${INCDIR} -std=c++11
 
 SRC=$(wildcard $(SRCDIR)/*.cpp)
-SRC+="$(SRCDIR)/lexer.cpp"
-SRC+="$(SRCDIR)/parser.cpp"
+SRC+=$(SRCDIR)/lexer.cpp
+SRC+=$(SRCDIR)/parser.cpp
 OBJ=$(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRC))
 DEP=$(patsubst $(SRCDIR)/%.cpp,$(DEPDIR)/%.d,$(SRC))
 
