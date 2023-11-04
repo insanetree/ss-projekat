@@ -24,6 +24,9 @@ RPAR  ")"
 PLUS  "+"
 SEMI  ";"
 COMMA ","
+DOT   "."
+LBRACKET "["
+RBRACKET "]"
 
 /* and these define some regular expressions we'll use. We could
  * also use these inline down below. */
