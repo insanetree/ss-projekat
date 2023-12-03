@@ -2,6 +2,9 @@
  * header files we want */
 %{
 #include "parser.hpp"
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 %}
 
 /* this tells us that we're going to output our lexer implementation
@@ -18,47 +21,60 @@
  */
 %option noyywrap
 
-/* these define a few literals to use later on */
 LPAR  "("
 RPAR  ")"
 PLUS  "+"
-SEMI  ";"
 COMMA ","
-DOT   "."
+DOT   "\."
 LBRACKET "["
 RBRACKET "]"
+DOLLAR "$"
+PERCENT "%"
 
-/* and these define some regular expressions we'll use. We could
- * also use these inline down below. */
-HEX   0[Xx][0-9A-Fa-f]+
+HEXADECIMAL   0[Xx][0-9A-Fa-f]+
+DECIMAL [1-9][0-9]*
 IDENT [A-Za-z_][A-Za-z0-9_]*
 COM   "#"[^\n\r]*
 WS    [ \r\n\t]*
 
-/* In the below code, the TOKEN_blah types and the yylval
- * structure are used; these are defined in parser.y */
-
 %%
+{WS} {}
+{COM} {}
+{LPAR} {
+    return TOKEN_LPAR;
+}
+{RPAR} {
+    return TOKEN_RPAR;
+}
+{LBRACKET} {
+    return TOKEN_LBRACKET;
+}
+{RBRACKET} {
+    return TOKEN_RBRACKET;
+}
+{PLUS} {
+    return TOKEN_PLUS;
+}
+{COMMA} {
+    return TOKEN_COMMA;
+}
+{DOT} {
+    return TOKEN_DOT;
+}
+{DOLLAR} {
+    return TOKEN_DOLLAR;
+}
+{PERCENT} {
+    return TOKEN_PERCENT;
+}
+{IDENT} {
+    size_t size = strlen(yytext);
+    yylval.ident = (char*)malloc(size+1);
+    strcpy(yylval.ident, yytext);
+    yylval.ident[size] = '\0';
+    return TOKEN_IDENT;
+}
 
-{WS}        { /* skip whitspace */ }
-{COM}       { /* also skip comments */ }
-{HEX}		{
-	          sscanf(yytext, "%x", &yylval.num);
-			  return TOKEN_NUM;
-            }
-{IDENT}     {
-	          /* It's important that we copy the string here,
-               * because the `yytext` pointer will get reused
-               * as the lexer continues. */
-	          yylval.ident = copy_str(yytext);
-			  return TOKEN_IDENT;
-            }
-
-{LPAR}      { return TOKEN_LPAR; }
-{RPAR}      { return TOKEN_RPAR; }
-{PLUS}      { return TOKEN_PLUS; }
-{SEMI}      { return TOKEN_SEMI; }
-{COMMA}     { return TOKEN_COMMA; }
 
 %%
 

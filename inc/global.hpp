@@ -5,7 +5,7 @@
 #include <fstream>
 #include <string>
 #include <unordered_map>
-#include <regex>
+#include <cstdio>
 
 using namespace std;
 

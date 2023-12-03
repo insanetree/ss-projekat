@@ -1,16 +1,14 @@
 SRCDIR=src
 INCDIR=inc
-DEPDIR=build/dep
-OBJDIR=build/obj
+OBJDIR=build
 
 CPP=g++
-CPPFLAGS=-I${INCDIR} -std=c++11
+CPPFLAGS=-I${INCDIR} -std=c++11 -MMD -MP
 
 SRC=$(wildcard $(SRCDIR)/*.cpp)
 SRC+=$(SRCDIR)/lexer.cpp
 SRC+=$(SRCDIR)/parser.cpp
 OBJ=$(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRC))
-DEP=$(patsubst $(SRCDIR)/%.cpp,$(DEPDIR)/%.d,$(SRC))
 
 ASSEMBLER=build/assembler
 LINKER=build/linker
@@ -37,11 +35,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	mkdir -p $(OBJDIR)
 	$(CPP) $(CPPFLAGS) -c -o $@ $<
 
-$(DEPDIR)/%.d: $(SRCDIR)/%.cpp
-	mkdir -p $(DEPDIR)
-	$(CPP) $(CPPFLAGS) -MM -MT $(OBJDIR)/$*.o $< > $@
-
-include $(DEP)
+-include $(wildcard $(OBJDIR)/*.d)
 
 $(SRCDIR)/lexer.cpp: misc/lexer.l
 	flex misc/lexer.l
@@ -51,5 +45,7 @@ $(SRCDIR)/parser.cpp: misc/parser.y misc/lexer.l
 
 clean:
 	rm -rf build
+	rm $(SRCDIR)/lexer.cpp
+	rm $(SRCDIR)/parser.cpp
 	
-.PHONY: all clean assembler linker emulator
+#.PHONY: all clean assembler linker emulator

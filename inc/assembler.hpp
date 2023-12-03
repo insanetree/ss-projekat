@@ -3,13 +3,17 @@
 
 #include "global.hpp"
 #include "symbol.hpp"
+#include "lexer.hpp"
+#include "parser.hpp"
+
+extern FILE* yyin;
 
 class Assembler {
 public:	
 	static bool setInput(string filename);
 	static bool setOutput(string filename);
-	static void firstPass();
-	static void secondPass();
+	static int firstPass();
+	static int secondPass();
 private:
 	static ifstream input;
 	static ofstream output;
