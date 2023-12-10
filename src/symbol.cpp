@@ -6,11 +6,11 @@ unsigned int Symbol::getID() const {
 	return this->id;
 }
 
-string Symbol::getName() const {
+std::string Symbol::getName() const {
 	return this->name;
 }
 
-void Symbol::setName(string name) {
+void Symbol::setName(std::string name) {
 	this->name = name;
 }
 

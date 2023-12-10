@@ -1,68 +1,51 @@
 #include "global.hpp"
 #include "assembler.hpp"
 
-ifstream Assembler::input = ifstream();
-ofstream Assembler::output = ofstream();
-unordered_map<string, Symbol> Assembler::symbolTable;
+
+std::ifstream Assembler::input = std::ifstream();
+std::ofstream Assembler::output = std::ofstream();
+std::unordered_map<std::string, Symbol> Assembler::symbolTable;
 unsigned int Assembler::locationCounter = 0;
 
-bool Assembler::setInput(string filename) {
-	input.open(filename, ios::in);
+bool Assembler::setInput(std::string filename) {
+	input.open(filename, std::ios::in);
+	if(input.is_open()) {
+		yyin = fopen(filename.c_str(), "r");
+	}
 	return input.is_open();
 }
 
-bool Assembler::setOutput(string filename) {
-	output.open(filename, ios::out | ios::binary);
+bool Assembler::setOutput(std::string filename) {
+	output.open(filename, std::ios::out | std::ios::binary);
 	return output.is_open();
 }
 
-void Assembler::firstPass() {
-	string line;
-	smatch m;
-	bool patternFound;
-	regex clearComments("\\s*#.*");
-	while(!input.eof()) {
-		getline(input, line);
-		if(regex_search(line, m, clearComments)) {
-			line = m.prefix().str();
-		}
-		if(line.empty()) {
-			continue;
-		}
-		cout << line << endl;
-	}
-	cout<<"**************"<<endl;
+int Assembler::firstPass() {
+	return yyparse();
 }
 
-void Assembler::secondPass() {
-	input.clear();
-	input.seekg(0);
-
-	string line;
-	while(!input.eof()) {
-		getline(input, line);
-		cout << line << endl;
-	}
+int Assembler::secondPass() {
 }
+
+extern FILE* yyin;
 
 int main(int argc, char** argv) {
 	if(argc != 4) {
-		cerr<<"Incorrect number of arguments"<<endl \
-		<<"Usage: assembler -o <output file> <input file>"<<endl;
+		std::cerr<<"Incorrect number of arguments"<<std::endl \
+		<<"Usage: assembler -o <output file> <input file>"<<std::endl;
 		return -1;
 	}
 
 	if(!Assembler::setInput(argv[3])) {
-		cerr<<"Input file not found"<<endl;
+		std::cerr<<"Input file not found"<<std::endl;
 		return -2;
 	}
 	if(!Assembler::setOutput(argv[2])) {
-		cerr<<"Output file can not be generated"<<endl;
+		std::cerr<<"Output file can not be generated"<<std::endl;
 		return -3;
 	}
 
 	Assembler::firstPass();
-	Assembler::secondPass();
 
 	return 0;
 }

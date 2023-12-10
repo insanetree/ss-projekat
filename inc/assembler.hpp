@@ -10,14 +10,14 @@ extern FILE* yyin;
 
 class Assembler {
 public:	
-	static bool setInput(string filename);
-	static bool setOutput(string filename);
+	static bool setInput(std::string filename);
+	static bool setOutput(std::string filename);
 	static int firstPass();
 	static int secondPass();
 private:
-	static ifstream input;
-	static ofstream output;
-	static unordered_map<string, Symbol> symbolTable;
+	static std::ifstream input;
+	static std::ofstream output;
+	static std::unordered_map<std::string, Symbol> symbolTable;
 	static unsigned int locationCounter;
 };
 

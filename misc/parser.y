@@ -1,11 +1,7 @@
 /* If we want to use other functions, we have to put the relevant
  * header includes here. */
 %{
-  #include <iostream>
-  #include <string>
-	#include <cstdlib>
-	#include <cstdio>
-  using namespace std;
+  #include "global.hpp"
 	int yylex(void);
 	void yyerror(const char*);
 %}
@@ -55,9 +51,5 @@
   prog:
   | line prog
   ;
-  line: TOKEN_IDENT 
-  {
-    printf("%s\n",$1);
-  }
-  ;
+  line: 
 %%

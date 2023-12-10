@@ -6,8 +6,8 @@
 class Symbol{
 public:
 	unsigned int getID() const;
-	string getName() const;
-	void setName(string name);
+	std::string getName() const;
+	void setName(std::string name);
 	unsigned int getValue() const;
 	void setValue(unsigned int value);
 	unsigned int getSize() const;
@@ -20,7 +20,7 @@ protected:
 private:
 	static unsigned int next_id;
 	unsigned int id = next_id++;
-	string name;
+	std::string name;
 	unsigned int value;
 	unsigned int size;
 	bool global;

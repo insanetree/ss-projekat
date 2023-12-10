@@ -45,7 +45,9 @@ $(SRCDIR)/parser.cpp: misc/parser.y misc/lexer.l
 
 clean:
 	rm -rf build
-	rm $(SRCDIR)/lexer.cpp
-	rm $(SRCDIR)/parser.cpp
+	rm -f $(SRCDIR)/lexer.cpp
+	rm -f $(SRCDIR)/parser.cpp
+	rm -f $(INCDIR)/lexer.hpp
+	rm -f $(INCDIR)/parser.hpp
 	
 #.PHONY: all clean assembler linker emulator
