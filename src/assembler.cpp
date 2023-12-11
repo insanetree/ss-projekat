@@ -4,8 +4,9 @@
 
 std::ifstream Assembler::input = std::ifstream();
 std::ofstream Assembler::output = std::ofstream();
-std::unordered_map<std::string, Symbol> Assembler::symbolTable;
+std::unordered_map<std::string, Symbol*> Assembler::symbolTable;
 unsigned int Assembler::locationCounter = 0;
+int Assembler::currentSection = -1;
 
 bool Assembler::setInput(std::string filename) {
 	input.open(filename, std::ios::in);
@@ -25,6 +26,14 @@ int Assembler::firstPass() {
 }
 
 int Assembler::secondPass() {
+}
+
+int Assembler::getCurrentSection() {
+	return currentSection;
+}
+
+std::unordered_map<std::string, Symbol*>& Assembler::getSymbolTable() {
+	return symbolTable;
 }
 
 extern FILE* yyin;

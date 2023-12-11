@@ -26,6 +26,7 @@ RPAR  ")"
 PLUS  "+"
 COMMA ","
 DOT   "\."
+COLON ":"
 LBRACKET "["
 RBRACKET "]"
 DOLLAR "$"
@@ -61,6 +62,9 @@ WS    [ \r\n\t]*
 {DOT} {
     return TOKEN_DOT;
 }
+{COLON} {
+    return TOKEN_COLON;
+}
 {DOLLAR} {
     return TOKEN_DOLLAR;
 }
@@ -74,8 +78,14 @@ WS    [ \r\n\t]*
     yylval.ident[size] = '\0';
     return TOKEN_IDENT;
 }
-
-
+{HEXADECIMAL} {
+    sscanf(yytext, "%x", &yylval.num);
+    return TOKEN_NUM;
+}
+{DECIMAL} {
+    sscanf(yytext, "%d", &yylval.num);
+    return TOKEN_NUM;
+}
 %%
 
 /* In the event of some kind of error, this will get called. */

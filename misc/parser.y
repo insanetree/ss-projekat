@@ -2,6 +2,8 @@
  * header includes here. */
 %{
   #include "global.hpp"
+  #include "assembler.hpp"
+  #include "symbol.hpp"
 	int yylex(void);
 	void yyerror(const char*);
 %}
@@ -28,6 +30,7 @@
 %token TOKEN_PLUS
 %token TOKEN_COMMA
 %token TOKEN_DOT
+%token TOKEN_COLON
 %token TOKEN_DOLLAR
 %token TOKEN_PERCENT
 
@@ -51,5 +54,29 @@
   prog:
   | line prog
   ;
-  line: 
+
+  line: label
+  | instruction
+  | directive
+  ;
+
+  label: TOKEN_IDENT TOKEN_COLON {
+    if(Assembler::getCurrentSection().empty()){
+      std::cerr<<"label "<<$1<<" defined out of any section"<<std::endl;
+      exit(1);
+    }
+    std::string label($1);
+    if(Assembler::getSymbolTable().count(label)) {
+      std::cerr<<"label "<<label<<" already defined"<<std::endl;
+      exit(1);
+    }
+    Symbol* newSymbol = new Symbol();
+  }
+  ;
+
+  instruction:
+  ;
+
+  directive:
+  ;
 %%
