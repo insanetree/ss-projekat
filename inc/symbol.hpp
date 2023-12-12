@@ -5,13 +5,12 @@
 
 class Symbol{
 public:
+	Symbol(const std::string& name, unsigned int value, bool global, int section);
 	unsigned int getID() const;
 	std::string getName() const;
 	void setName(std::string name);
 	unsigned int getValue() const;
 	void setValue(unsigned int value);
-	unsigned int getSize() const;
-	void setSize(unsigned int size);
 	bool isGlobal() const;
 	void setGlobal(bool global);
 	int getSection() const;
@@ -22,9 +21,8 @@ private:
 	unsigned int id = next_id++;
 	std::string name;
 	unsigned int value;
-	unsigned int size;
 	bool global;
-	int section;
+	int section; //-1 if UNKNOWN 
 };
 
 #endif

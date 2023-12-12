@@ -61,7 +61,7 @@
   ;
 
   label: TOKEN_IDENT TOKEN_COLON {
-    if(Assembler::getCurrentSection().empty()){
+    if(Assembler::getCurrentSection()<0){
       std::cerr<<"label "<<$1<<" defined out of any section"<<std::endl;
       exit(1);
     }
@@ -70,7 +70,8 @@
       std::cerr<<"label "<<label<<" already defined"<<std::endl;
       exit(1);
     }
-    Symbol* newSymbol = new Symbol();
+    Symbol* newSymbol = new Symbol(label, Assembler::getLocationCounter(), false, Assembler::getCurrentSection());
+    Assembler::getSymbolTable().insert({label, newSymbol});
   }
   ;
 

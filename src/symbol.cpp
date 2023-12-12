@@ -2,6 +2,12 @@
 
 unsigned int Symbol::next_id = 0;
 
+Symbol::Symbol(const std::string& name, unsigned int value, bool global=false, int section=-1)
+: name(name), value(value), global(global), section(section)
+{
+
+}
+
 unsigned int Symbol::getID() const {
 	return this->id;
 }
@@ -20,14 +26,6 @@ unsigned int Symbol::getValue() const {
 
 void Symbol::setValue(unsigned int value) {
 	this->value = value;
-}
-
-unsigned int Symbol::getSize() const {
-	return this->size;
-}
-
-void Symbol::setSize(unsigned int size) {
-	this->size = size;
 }
 
 bool Symbol::isGlobal() const {

@@ -36,6 +36,18 @@ std::unordered_map<std::string, Symbol*>& Assembler::getSymbolTable() {
 	return symbolTable;
 }
 
+unsigned int Assembler::getLocationCounter() {
+	return locationCounter;
+}
+
+void Assembler::setLocationCounter(unsigned int value=0) {
+	locationCounter = value;
+}
+
+void Assembler::incrementLocationCounter(unsigned int increment=4) {
+	locationCounter += increment;
+}
+
 extern FILE* yyin;
 
 int main(int argc, char** argv) {
