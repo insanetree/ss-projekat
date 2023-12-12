@@ -12,7 +12,7 @@
  */
 %option outfile="src/lexer.cpp" header-file="inc/lexer.hpp"
 
-/* the int yywrap(void) is used internally by the lexer for the case
+/* the int32_t yywrap(void) is used internally by the lexer for the case
  *  where you want to parse multiple files in sequence with the same
  * parser state. Usually, you'd supply your own implementation that
  * would set up the next input stream and let the lexer know whether
@@ -89,8 +89,7 @@ WS    [ \r\n\t]*
 %%
 
 /* In the event of some kind of error, this will get called. */
-int
-yyerror(const char* msg)
+int32_t yyerror(const char* msg)
 {
     fprintf(stderr, "lexer error: %s\n", msg);
     return 0;
