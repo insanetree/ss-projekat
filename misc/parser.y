@@ -91,9 +91,9 @@
   argList: arg {
     $$ = $1;
   }
-  | arg argList {
+  | arg TOKEN_COMMA argList {
     struct arg *argument = $1;
-    argument->next = $2;
+    argument->next = $3;
     $$ = argument;
   }
   ;
