@@ -9,6 +9,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstdio>
+#include <cstdint>
+
+class Symbol;
 
 typedef enum{
     LITERAL_VALUE,
@@ -21,11 +24,14 @@ typedef enum{
     REGISTER_SYMBOL_MEMORY
 }argumentType;
 
-struct arg {
+struct arg{
     argumentType type;
-    int registerNumber;
-    int literal;
+    int32_t registerNumber;
+    int32_t literal;
     std::string symbol;
+    struct arg* next;
 };
+
+int32_t getRegisterNum(const std::string&);
 
 #endif
