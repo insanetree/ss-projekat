@@ -5,24 +5,24 @@
 
 class Symbol{
 public:
-	Symbol(const std::string& name, unsigned int value, bool global, int section);
-	unsigned int getID() const;
+	Symbol(const std::string& name, uint32_t value, bool global, int32_t section);
+	uint32_t getID() const;
 	std::string getName() const;
 	void setName(std::string name);
-	unsigned int getValue() const;
-	void setValue(unsigned int value);
+	uint32_t getValue() const;
+	void setValue(uint32_t value);
 	bool isGlobal() const;
 	void setGlobal(bool global);
-	int getSection() const;
-	void setSection(int section);
+	int32_t getSection() const;
+	void setSection(int32_t section);
 protected:
 private:
-	static unsigned int next_id;
-	unsigned int id = next_id++;
+	static uint32_t next_id;
+	uint32_t id = next_id++;
 	std::string name;
-	unsigned int value;
+	uint32_t value;
 	bool global;
-	int section; //-1 if UNKNOWN 
+	int32_t section; //-1: UNKNOWN 0: COMMON else:sectionId
 };
 
 #endif

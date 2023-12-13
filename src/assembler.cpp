@@ -5,8 +5,8 @@
 std::ifstream Assembler::input = std::ifstream();
 std::ofstream Assembler::output = std::ofstream();
 std::unordered_map<std::string, Symbol*> Assembler::symbolTable;
-unsigned int Assembler::locationCounter = 0;
-int Assembler::currentSection = -1;
+uint32_t Assembler::locationCounter = 0;
+int32_t Assembler::currentSection = -1;
 
 bool Assembler::setInput(std::string filename) {
 	input.open(filename, std::ios::in);
@@ -21,14 +21,14 @@ bool Assembler::setOutput(std::string filename) {
 	return output.is_open();
 }
 
-int Assembler::firstPass() {
+int32_t Assembler::firstPass() {
 	return yyparse();
 }
 
-int Assembler::secondPass() {
+int32_t Assembler::secondPass() {
 }
 
-int Assembler::getCurrentSection() {
+int32_t Assembler::getCurrentSection() {
 	return currentSection;
 }
 
@@ -36,21 +36,21 @@ std::unordered_map<std::string, Symbol*>& Assembler::getSymbolTable() {
 	return symbolTable;
 }
 
-unsigned int Assembler::getLocationCounter() {
+uint32_t Assembler::getLocationCounter() {
 	return locationCounter;
 }
 
-void Assembler::setLocationCounter(unsigned int value=0) {
+void Assembler::setLocationCounter(uint32_t value=0) {
 	locationCounter = value;
 }
 
-void Assembler::incrementLocationCounter(unsigned int increment=4) {
+void Assembler::incrementLocationCounter(uint32_t increment=4) {
 	locationCounter += increment;
 }
 
 extern FILE* yyin;
 
-int main(int argc, char** argv) {
+int32_t main(int32_t argc, char** argv) {
 	if(argc != 4) {
 		std::cerr<<"Incorrect number of arguments"<<std::endl \
 		<<"Usage: assembler -o <output file> <input file>"<<std::endl;
@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
 		return -3;
 	}
 
-	Assembler::firstPass();
+	std::cout<<Assembler::firstPass();
 
 	return 0;
 }

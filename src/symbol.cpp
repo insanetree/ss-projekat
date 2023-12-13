@@ -1,14 +1,14 @@
 #include "symbol.hpp"
 
-unsigned int Symbol::next_id = 0;
+uint32_t Symbol::next_id = 0;
 
-Symbol::Symbol(const std::string& name, unsigned int value, bool global=false, int section=-1)
+Symbol::Symbol(const std::string& name, uint32_t value, bool global=false, int32_t section=-1)
 : name(name), value(value), global(global), section(section)
 {
 
 }
 
-unsigned int Symbol::getID() const {
+uint32_t Symbol::getID() const {
 	return this->id;
 }
 
@@ -20,11 +20,11 @@ void Symbol::setName(std::string name) {
 	this->name = name;
 }
 
-unsigned int Symbol::getValue() const {
+uint32_t Symbol::getValue() const {
 	return this->value;
 }
 
-void Symbol::setValue(unsigned int value) {
+void Symbol::setValue(uint32_t value) {
 	this->value = value;
 }
 
@@ -36,10 +36,10 @@ void Symbol::setGlobal(bool global) {
 	this->global = global;
 }
 
-int Symbol::getSection() const {
+int32_t Symbol::getSection() const {
 	return this->section;
 }
 
-void Symbol::setSection(int section) {
+void Symbol::setSection(int32_t section) {
 	this->section = section;
 }

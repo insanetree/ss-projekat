@@ -16,7 +16,7 @@
 /* This union defines the possible return types of both lexer and
  * parser rules. We'll refer to these later on by the field name */
 %union {
-	int32_t         num;
+	int32_t     num;
 	char*       ident;
 	struct arg *arg;
 }
@@ -154,7 +154,7 @@
     newArgument->next = nullptr;
     $$ = newArgument;
   }
-  |TOKEN_LBRACKET TOKEN_PERCENT TOKEN_IDENT TOKEN_PLUS TOKEN_IDENT TOKEN_RBRACKET {
+  | TOKEN_LBRACKET TOKEN_PERCENT TOKEN_IDENT TOKEN_PLUS TOKEN_IDENT TOKEN_RBRACKET {
     struct arg* newArgument = new arg();
     newArgument->type = REGISTER_SYMBOL_MEMORY;
     uint32_t reg = getRegisterNum(std::string($3));
