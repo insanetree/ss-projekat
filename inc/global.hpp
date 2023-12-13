@@ -6,6 +6,8 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <set>
+#include <list>
 #include <cstdio>
 #include <cstdlib>
 #include <cstdio>
@@ -13,18 +15,18 @@
 
 class Symbol;
 
-typedef enum{
-    LITERAL_VALUE,
-    SYMBOL_VALUE,
-    LITERAL_MEMORY,
-    SYMBOL_MEMORY,
+typedef enum {
+    LITERAL_DOLLAR,
+    SYMBOL_DOLLAR,
+    LITERAL,
+    SYMBOL,
     REGISTER_VALUE,
     REGISTER_MEMORY,
     REGISTER_LITERAL_MEMORY,
     REGISTER_SYMBOL_MEMORY
 }argumentType;
 
-struct arg{
+struct arg {
     argumentType type;
     int32_t registerNumber;
     int32_t literal;

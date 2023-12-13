@@ -34,7 +34,6 @@
 %token TOKEN_DOLLAR
 %token TOKEN_PERCENT
 
-
 /* These are ALSO used in the lexer, but in addition to
  * being tokens, they also have return values associated
  * with them. We name those according to the names we used
@@ -61,7 +60,7 @@
   ;
 
   label: TOKEN_IDENT TOKEN_COLON {
-    if(Assembler::getCurrentSection()<0){
+    if(Assembler::getCurrentSection() < 0){
       std::cerr<<"label "<<$1<<" defined out of any section"<<std::endl;
       YYABORT;
     }
@@ -100,28 +99,28 @@
 
   arg: TOKEN_DOLLAR TOKEN_NUM {
     struct arg* newArgument = new arg();
-    newArgument->type = LITERAL_VALUE;
+    newArgument->type = LITERAL_DOLLAR;
     newArgument->literal = $2;
     newArgument->next = nullptr;
     $$ = newArgument;
   }
   | TOKEN_DOLLAR TOKEN_IDENT {
     struct arg* newArgument = new arg();
-    newArgument->type = SYMBOL_VALUE;
+    newArgument->type = SYMBOL_DOLLAR;
     newArgument->symbol = std::string($2);
     newArgument->next = nullptr;
     $$ = newArgument;
   }
   | TOKEN_NUM {
     struct arg* newArgument = new arg();
-    newArgument->type = LITERAL_MEMORY;
+    newArgument->type = LITERAL;
     newArgument->literal = $1;
     newArgument->next = nullptr;
     $$ = newArgument;
   }
   | TOKEN_IDENT {
     struct arg* newArgument = new arg();
-    newArgument->type = SYMBOL_MEMORY;
+    newArgument->type = SYMBOL;
     newArgument->symbol = std::string($1);
     newArgument->next = nullptr;
     $$ = newArgument;
