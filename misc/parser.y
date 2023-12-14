@@ -3,6 +3,9 @@
 %{
   #include "global.hpp"
   #include "assembler.hpp"
+  #include "directive.hpp"
+  #include "instruction.hpp"
+  #include "section.hpp"
   #include "symbol.hpp"
 	int32_t yylex(void);
 	void yyerror(const char*);
@@ -60,7 +63,7 @@
   ;
 
   label: TOKEN_IDENT TOKEN_COLON {
-    if(Assembler::getCurrentSection() < 0){
+    if(!Assembler::getCurrentSection()){
       std::cerr<<"label "<<$1<<" defined out of any section"<<std::endl;
       YYABORT;
     }
@@ -69,7 +72,7 @@
       std::cerr<<"label "<<label<<" already defined"<<std::endl;
       YYABORT;
     }
-    Symbol* newSymbol = new Symbol(label, Assembler::getLocationCounter(), false, Assembler::getCurrentSection());
+    Symbol* newSymbol = new Symbol(label, Assembler::getLocationCounter(), false, Assembler::getCurrentSection()->getId());
     Assembler::getSymbolTable().insert({label, newSymbol});
   }
   ;
@@ -83,7 +86,16 @@
     YYABORT;
   }
   | TOKEN_DOT TOKEN_IDENT argList {
-
+    Statement* newDirective = new Directive(std::string($2), $3);
+    if(!newDirective->isValid()){
+      delete newDirective;
+      YYABORT;
+    }
+    if(newDirective->firstPass()) {
+      delete newDirective;
+      YYABORT;
+    }
+      
   }
   ;
 

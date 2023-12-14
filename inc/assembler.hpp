@@ -2,11 +2,14 @@
 #define ASSEMBLER_HPP
 
 #include "global.hpp"
-#include "symbol.hpp"
 #include "lexer.hpp"
 #include "parser.hpp"
 
 extern FILE* yyin;
+
+class Section;
+class Statement;
+class Symbol;
 
 class Assembler {
 public:	
@@ -14,18 +17,22 @@ public:
 	static bool setOutput(std::string filename);
 	static int32_t firstPass();
 	static int32_t secondPass();
-	static int32_t getCurrentSection();
+	static Section* getCurrentSection();
+	static void setCurrentSection(Section*);
 	static uint32_t getLocationCounter();
 	static void setLocationCounter(uint32_t value);
 	static void incrementLocationCounter(uint32_t increment);
+	static void insertStatement(Statement*);
 	static std::unordered_map<std::string, Symbol*>& getSymbolTable();
+	static std::unordered_map<std::string, Section*>& getSectionTable();
 private:
 	static std::ifstream input;
 	static std::ofstream output;
 	static std::unordered_map<std::string, Symbol*> symbolTable;
-	static std::vector<std::string> sectionTable;
+	static std::unordered_map<std::string, Section*> sectionTable;
+	static std::vector<Statement*> statements;
 	static uint32_t locationCounter;
-	static int32_t currentSection;
+	static Section* currentSection;
 };
 
 #endif

@@ -1,12 +1,13 @@
 #include "global.hpp"
 #include "assembler.hpp"
 
-
 std::ifstream Assembler::input = std::ifstream();
 std::ofstream Assembler::output = std::ofstream();
 std::unordered_map<std::string, Symbol*> Assembler::symbolTable;
+std::unordered_map<std::string, Section*> Assembler::sectionTable;
+std::vector<Statement*> Assembler::statements;
 uint32_t Assembler::locationCounter = 0;
-int32_t Assembler::currentSection = -1;
+Section* Assembler::currentSection = nullptr;
 
 bool Assembler::setInput(std::string filename) {
 	input.open(filename, std::ios::in);
@@ -28,12 +29,20 @@ int32_t Assembler::firstPass() {
 int32_t Assembler::secondPass() {
 }
 
-int32_t Assembler::getCurrentSection() {
+Section* Assembler::getCurrentSection() {
 	return currentSection;
+}
+
+void Assembler::setCurrentSection(Section* section) {
+	currentSection = section;
 }
 
 std::unordered_map<std::string, Symbol*>& Assembler::getSymbolTable() {
 	return symbolTable;
+}
+
+std::unordered_map<std::string, Section*>& Assembler::getSectionTable() {
+	return sectionTable;
 }
 
 uint32_t Assembler::getLocationCounter() {

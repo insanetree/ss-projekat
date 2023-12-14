@@ -1,0 +1,12 @@
+#include "statement.hpp"
+
+Statement::Statement(const std::string& keyword, arg* argList) : keyword(keyword) {
+	while(argList) {
+		arguments.push_back(argList);
+		argList = argList->next;
+	}
+}
+
+const std::string& Statement::getKeyword() const {
+	return keyword;
+}
