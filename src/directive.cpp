@@ -121,7 +121,7 @@ bool Directive::isValid() {
 
 int32_t Directive::firstPass() {
 	if(keyword == "global") {
-
+		Assembler::insertStatement(this);
 	} 
 	else if(keyword == "extern") {
 		Assembler::getSymbolTable().insert({arguments[0]->symbol, new Symbol(arguments[0]->symbol, 0, true, -1)});
