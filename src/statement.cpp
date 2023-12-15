@@ -7,6 +7,12 @@ Statement::Statement(const std::string& keyword, arg* argList) : keyword(keyword
 	}
 }
 
+Statement::~Statement() {
+	for(arg* a: arguments){
+		delete a;
+	}
+}
+
 const std::string& Statement::getKeyword() const {
 	return keyword;
 }

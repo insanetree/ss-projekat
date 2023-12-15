@@ -149,21 +149,34 @@ int32_t Directive::firstPass() {
 		}
 		Assembler::setLocationCounter(newSection->getSize());
 		Assembler::setCurrentSection(newSection);
+		return 0;
 	} 
 	else if(keyword == "word") {
-
+		Section* currentSection = Assembler::getCurrentSection();
+		if(!currentSection)
+			return -1;
+		
+		Assembler::incrementLocationCounter(this->getSize());
+		currentSection->addStatement(this);
+		return 0;
 	} 
 	else if(keyword == "skip") {
-
+		Section* currentSection = Assembler::getCurrentSection();
+		if(!currentSection)
+			return -1;
+		
+		Assembler::incrementLocationCounter(this->getSize());
+		currentSection->addStatement(this);
+		return 0;
 	} 
 	else if(keyword == "ascii") {
-
+		return 0;
 	} 
 	else if(keyword == "equ") {
-
+		return 0;
 	} 
 	else if(keyword == "end") {
-
+		return 0;
 	}
 	return -1;
 }

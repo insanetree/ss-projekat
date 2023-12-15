@@ -9,7 +9,7 @@
 class Statement {
 public:
 	Statement(const std::string&, arg*);
-	virtual ~Statement() = default;
+	virtual ~Statement();
 	const std::string& getKeyword() const;
 	virtual uint32_t getSize() = 0;
 	virtual bool isValid() = 0;

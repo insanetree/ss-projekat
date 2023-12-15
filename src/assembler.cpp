@@ -57,6 +57,10 @@ void Assembler::incrementLocationCounter(uint32_t increment=4) {
 	locationCounter += increment;
 }
 
+void Assembler::insertStatement(Statement* statement) {
+	statements.push_back(statement);
+}
+
 extern FILE* yyin;
 
 int32_t main(int32_t argc, char** argv) {
