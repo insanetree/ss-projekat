@@ -3,7 +3,7 @@ INCDIR=inc
 OBJDIR=build
 
 CPP=g++
-CPPFLAGS=-I${INCDIR} -MMD -MP -Wall
+CPPFLAGS=-I${INCDIR} -MMD -MP -Wall -g
 
 SRC=$(wildcard $(SRCDIR)/*.cpp)
 SRC+=$(SRCDIR)/lexer.cpp

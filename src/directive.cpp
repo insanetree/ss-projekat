@@ -178,5 +178,5 @@ int32_t Directive::firstPass() {
 	else if(keyword == "end") {
 		return 0;
 	}
-	return -1;
+	return 0;
 }

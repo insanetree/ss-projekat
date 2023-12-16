@@ -3,6 +3,7 @@
 
 #include "statement.hpp"
 #include "assembler.hpp"
+#include "section.hpp"
 
 class Directive : public Statement {
 public:

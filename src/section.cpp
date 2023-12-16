@@ -19,3 +19,7 @@ int32_t Section::getId() const {
 const std::string& Section::getName() const {
 	return name;
 }
+
+void Section::addStatement(Statement* statement) {
+	statements.push_back(statement);
+}

@@ -36,6 +36,7 @@
 %token TOKEN_COLON
 %token TOKEN_DOLLAR
 %token TOKEN_PERCENT
+%token TOKEN_ENDLINE
 
 /* These are ALSO used in the lexer, but in addition to
  * being tokens, they also have return values associated
@@ -57,9 +58,11 @@
   | line prog
   ;
 
-  line: label
-  | instruction
-  | directive
+  line: label TOKEN_ENDLINE
+  | instruction TOKEN_ENDLINE
+  | directive TOKEN_ENDLINE
+  | label instruction TOKEN_ENDLINE
+  | label directive TOKEN_ENDLINE
   ;
 
   label: TOKEN_IDENT TOKEN_COLON {
@@ -77,7 +80,15 @@
   }
   ;
 
-  instruction:
+  instruction: TOKEN_IDENT {
+    std::string instruction($1);
+    delete $1;
+
+  }
+  | TOKEN_IDENT argList {
+    std::string instruction($1);
+    delete $1;
+  }
   ;
 
   directive: TOKEN_DOT TOKEN_IDENT {
@@ -87,6 +98,7 @@
   }
   | TOKEN_DOT TOKEN_IDENT argList {
     Statement* newDirective = new Directive(std::string($2), $3);
+    delete $2;
     if(!newDirective->isValid()){
       delete newDirective;
       YYABORT;
@@ -142,6 +154,7 @@
     newArgument->type = REGISTER_VALUE;
     uint32_t reg = getRegisterNum(std::string($2));
     if(reg < 0) YYABORT;
+    if(reg > 15) newArgument->type = REGISTER_VALUE_CSR;
     newArgument->registerNumber = reg;
     newArgument->next = nullptr;
     $$ = newArgument;
@@ -150,7 +163,7 @@
     struct arg* newArgument = new arg();
     newArgument->type = REGISTER_MEMORY;
     uint32_t reg = getRegisterNum(std::string($3));
-    if(reg < 0) YYABORT;
+    if(reg < 0 || reg > 15) YYABORT;
     newArgument->registerNumber = reg;
     newArgument->next = nullptr;
     $$ = newArgument;
@@ -159,7 +172,7 @@
     struct arg* newArgument = new arg();
     newArgument->type = REGISTER_LITERAL_MEMORY;
     uint32_t reg = getRegisterNum(std::string($3));
-    if(reg < 0) YYABORT;
+    if(reg < 0 || reg > 15) YYABORT;
     newArgument->registerNumber = reg;
     newArgument->literal = $5;
     newArgument->next = nullptr;
@@ -169,7 +182,7 @@
     struct arg* newArgument = new arg();
     newArgument->type = REGISTER_SYMBOL_MEMORY;
     uint32_t reg = getRegisterNum(std::string($3));
-    if(reg < 0) YYABORT;
+    if(reg < 0 || reg > 15) YYABORT;
     newArgument->registerNumber = reg;
     newArgument->symbol = std::string($5);
     newArgument->next = nullptr;

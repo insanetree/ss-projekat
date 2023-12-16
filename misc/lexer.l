@@ -35,8 +35,9 @@ PERCENT "%"
 HEXADECIMAL   0[Xx][0-9A-Fa-f]+
 DECIMAL [1-9][0-9]*
 IDENT [A-Za-z_][A-Za-z0-9_]*
+ENDLINE (\n|\r\n)+
 COM   "#"[^\n\r]*
-WS    [ \r\n\t]*
+WS    [ \t]*
 
 %%
 {WS} {}
@@ -70,6 +71,12 @@ WS    [ \r\n\t]*
 }
 {PERCENT} {
     return TOKEN_PERCENT;
+}
+{ENDLINE} {
+    return TOKEN_ENDLINE;
+}
+<<EOF>> {
+    return TOKEN_ENDLINE;
 }
 {IDENT} {
     size_t size = strlen(yytext);
