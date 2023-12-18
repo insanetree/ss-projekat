@@ -58,11 +58,15 @@
   | line prog
   ;
 
-  line: label TOKEN_ENDLINE
-  | instruction TOKEN_ENDLINE
-  | directive TOKEN_ENDLINE
-  | label instruction TOKEN_ENDLINE
-  | label directive TOKEN_ENDLINE
+  line: label endline
+  | instruction endline
+  | directive endline
+  | label instruction endline
+  | label directive endline
+  ;
+
+  endline: TOKEN_ENDLINE
+  | TOKEN_ENDLINE endline
   ;
 
   label: TOKEN_IDENT TOKEN_COLON {

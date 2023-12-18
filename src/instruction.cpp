@@ -39,6 +39,23 @@ int32_t Instruction::firstPass() {
 		return -1;
 	currentSection->addStatement(this);
 	Assembler::incrementLocationCounter(this->getSize());
+	if(keyword == "ld") {
+		if(arguments.front()->type == SYMBOL || arguments.front()->type == SYMBOL_DOLLAR) {
+			Assembler::getCurrentSection()->addSymbolToPool(arguments.front()->symbol);
+		}
+		else if(arguments.front()->type == LITERAL || arguments.front()->type == LITERAL_DOLLAR) {
+			Assembler::getCurrentSection()->addLiteralToPool(arguments.front()->literal);
+		}
+	}
+	else if (keyword == "call" || keyword == "jmp" || keyword == "beq" ||
+             keyword == "bne" || keyword == "bgt" || keyword == "st") {
+		if(arguments.back()->type == SYMBOL || arguments.back()->type == SYMBOL_DOLLAR) {
+			Assembler::getCurrentSection()->addSymbolToPool(arguments.back()->symbol);
+		}
+		else if(arguments.back()->type == LITERAL || arguments.back()->type == LITERAL_DOLLAR) {
+			Assembler::getCurrentSection()->addLiteralToPool(arguments.back()->literal);
+		}
+	}
 	return 0;
 }
 
