@@ -29,6 +29,8 @@ std::set<std::string> Instruction::validKeywords{
 	"csrwr"
 };
 
+Instruction::Instruction(const std::string& keyword, arg* argList) : Statement(keyword, argList) {}
+
 uint32_t Instruction::getSize() {
 	return 4;
 }

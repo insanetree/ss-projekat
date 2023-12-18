@@ -15,6 +15,8 @@
 %output "src/parser.cpp"
 %defines "inc/parser.hpp"
 %language "c"
+%error-verbose
+%verbose
 
 /* This union defines the possible return types of both lexer and
  * parser rules. We'll refer to these later on by the field name */
@@ -58,11 +60,10 @@
   | line prog
   ;
 
-  line: label endline
-  | instruction endline
-  | directive endline
-  | label instruction endline
-  | label directive endline
+  line: label
+  | instruction
+  | directive
+  | endline
   ;
 
   endline: TOKEN_ENDLINE
@@ -70,11 +71,13 @@
   ;
 
   label: TOKEN_IDENT TOKEN_COLON {
+    std::string label($1);
+    delete $1;
     if(!Assembler::getCurrentSection()){
-      std::cerr<<"label "<<$1<<" defined out of any section"<<std::endl;
+      std::cerr<<"label "<<label<<" defined out of any section"<<std::endl;
       YYABORT;
     }
-    std::string label($1);
+    
     if(Assembler::getSymbolTable().count(label)) {
       std::cerr<<"label "<<label<<" already defined"<<std::endl;
       YYABORT;
@@ -87,11 +90,36 @@
   instruction: TOKEN_IDENT {
     std::string instruction($1);
     delete $1;
-
+    if(!Assembler::getCurrentSection()){
+      std::cerr<<"instruction "<<instruction<<" out of any section"<<std::endl;
+      YYABORT;
+    }
+	  Statement* newInstruction = new Instruction(instruction, nullptr);
+    if(!newInstruction->isValid()) {
+      delete newInstruction;
+      YYABORT;
+    }
+    if(newInstruction->firstPass()) {
+      delete newInstruction;
+      YYABORT;
+    }
   }
   | TOKEN_IDENT argList {
     std::string instruction($1);
     delete $1;
+    if(!Assembler::getCurrentSection()){
+      std::cerr<<"instruction "<<instruction<<" out of any section"<<std::endl;
+      YYABORT;
+    }
+    Statement* newInstruction = new Instruction(instruction, $2);
+    if(!newInstruction->isValid()) {
+      delete newInstruction;
+      YYABORT;
+    }
+    if(newInstruction->firstPass()) {
+      delete newInstruction;
+      YYABORT;
+    }
   }
   ;
 

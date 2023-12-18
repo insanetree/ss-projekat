@@ -90,7 +90,7 @@ bool Directive::isValid() {
 	else if(keyword == "section") {
 		if(arguments.size() != 1)
 			return false;
-		if(arguments[1]->type != SYMBOL)
+		if(arguments[0]->type != SYMBOL)
 			return false;
 	} 
 	else if(keyword == "word") {

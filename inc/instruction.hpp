@@ -4,6 +4,7 @@
 #include "statement.hpp"
 
 class Instruction : public Statement {
+public:
 	Instruction(const std::string&, arg*);
     virtual uint32_t getSize() override;
     virtual bool isValid() override;

@@ -20,6 +20,7 @@
  * the same as a dummy implementation like #define yywrap() 0.
  */
 %option noyywrap
+%option debug
 
 LPAR  "("
 RPAR  ")"

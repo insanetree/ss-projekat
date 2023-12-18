@@ -1,4 +1,5 @@
 build/*
+.idea/*
 inc/lexer.hpp
 inc/parser.hpp
 src/lexer.cpp
