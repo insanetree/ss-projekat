@@ -180,3 +180,7 @@ int32_t Directive::firstPass() {
 	}
 	return 0;
 }
+
+int32_t Directive::secondPass() {
+	return 0;
+}

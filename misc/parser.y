@@ -15,8 +15,6 @@
 %output "src/parser.cpp"
 %defines "inc/parser.hpp"
 %language "c"
-%error-verbose
-%verbose
 
 /* This union defines the possible return types of both lexer and
  * parser rules. We'll refer to these later on by the field name */
@@ -125,7 +123,12 @@
 
   directive: TOKEN_DOT TOKEN_IDENT {
     std::string directive($2);
-    if(directive == "end") YYACCEPT;
+    if(directive == "end") {
+      Section* currentSection = Assembler::getCurrentSection();
+      if(currentSection)
+		    currentSection->setSize(Assembler::getLocationCounter());
+      YYACCEPT;
+    }
     YYABORT;
   }
   | TOKEN_DOT TOKEN_IDENT argList {

@@ -3,7 +3,7 @@
 uint32_t Symbol::next_id = 0;
 
 Symbol::Symbol(const std::string& name, uint32_t value, bool global=false, int32_t section=-1)
-: name(name), value(value), global(global), section(section)
+: name(name), value(value), section(section), global(global)
 {
 
 }

@@ -14,6 +14,7 @@ public:
 	virtual uint32_t getSize() = 0;
 	virtual bool isValid() = 0;
 	virtual int32_t firstPass() = 0;
+	virtual int32_t secondPass() = 0;
 protected:
 	std::string keyword;
 	std::vector<arg*> arguments;

@@ -119,3 +119,7 @@ bool Instruction::isValid() {
 	}
 	return true;
 }
+
+int32_t Instruction::secondPass() {
+	return 0;
+}

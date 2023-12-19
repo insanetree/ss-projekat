@@ -1,5 +1,8 @@
 #include "global.hpp"
 #include "assembler.hpp"
+#include "section.hpp"
+#include "instruction.hpp"
+#include "directive.hpp"
 
 std::ifstream Assembler::input = std::ifstream();
 std::ofstream Assembler::output = std::ofstream();
@@ -27,6 +30,11 @@ int32_t Assembler::firstPass() {
 }
 
 int32_t Assembler::secondPass() {
+	for(Statement* s : statements) {
+		if(s->secondPass()) {
+			return -1;
+		}
+	}
 }
 
 Section* Assembler::getCurrentSection() {
@@ -79,7 +87,12 @@ int32_t main(int32_t argc, char** argv) {
 		return -3;
 	}
 
-	std::cout<<Assembler::firstPass();
-
+	if(Assembler::firstPass()) {
+		std::cerr<<"First pass failed"<<std::endl;
+		return 1;
+	}
+	if(Assembler::secondPass()) {
+		std::cerr<<"Second pass failed"<<std::endl;
+	}
 	return 0;
 }

@@ -21,8 +21,8 @@ private:
 	uint32_t id = next_id++;
 	std::string name;
 	uint32_t value;
-	bool global;
 	int32_t section; //-1: UNKNOWN 0: COMMON else:sectionId
+	bool global;
 };
 
 #endif
