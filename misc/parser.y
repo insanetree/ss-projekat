@@ -54,14 +54,15 @@
 %type <arg> argList;
 
 %%
-  prog:
+  prog: 
   | line prog
   ;
 
-  line: label
-  | instruction
-  | directive
-  | endline
+  line: label endline
+  | instruction endline
+  | directive endline
+  | label instruction endline
+  | label directive endline
   ;
 
   endline: TOKEN_ENDLINE
@@ -92,7 +93,7 @@
       std::cerr<<"instruction "<<instruction<<" out of any section"<<std::endl;
       YYABORT;
     }
-	  Statement* newInstruction = new Instruction(instruction, nullptr);
+	  Statement* newInstruction = new Instruction(instruction, nullptr, Assembler::getCurrentSection());
     if(!newInstruction->isValid()) {
       delete newInstruction;
       YYABORT;
@@ -109,7 +110,7 @@
       std::cerr<<"instruction "<<instruction<<" out of any section"<<std::endl;
       YYABORT;
     }
-    Statement* newInstruction = new Instruction(instruction, $2);
+    Statement* newInstruction = new Instruction(instruction, $2, Assembler::getCurrentSection());
     if(!newInstruction->isValid()) {
       delete newInstruction;
       YYABORT;
@@ -132,7 +133,7 @@
     YYABORT;
   }
   | TOKEN_DOT TOKEN_IDENT argList {
-    Statement* newDirective = new Directive(std::string($2), $3);
+    Statement* newDirective = new Directive(std::string($2), $3, Assembler::getCurrentSection());
     delete $2;
     if(!newDirective->isValid()){
       delete newDirective;
