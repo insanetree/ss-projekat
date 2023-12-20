@@ -1,5 +1,6 @@
 build/*
 .idea/*
+.vscode/*
 inc/lexer.hpp
 inc/parser.hpp
 src/lexer.cpp

@@ -8,7 +8,7 @@
 
 class Statement {
 public:
-	Statement(const std::string&, arg*);
+	Statement(const std::string&, arg*, Section*);
 	virtual ~Statement();
 	const std::string& getKeyword() const;
 	virtual uint32_t getSize() = 0;
@@ -18,5 +18,6 @@ public:
 protected:
 	std::string keyword;
 	std::vector<arg*> arguments;
+	Section* section;
 };
 #endif

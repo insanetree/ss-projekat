@@ -10,6 +10,7 @@ extern FILE* yyin;
 class Section;
 class Statement;
 class Symbol;
+class StringPool;
 
 class Assembler {
 public:	
@@ -33,6 +34,7 @@ private:
 	static std::vector<Statement*> statements;
 	static uint32_t locationCounter;
 	static Section* currentSection;
+	static StringPool stringPool;
 };
 
 #endif

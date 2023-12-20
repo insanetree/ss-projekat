@@ -39,7 +39,7 @@ std::set<std::string> Directive::validKeywords{
 	"end"
 };
 
-Directive::Directive(const std::string& keyword, arg* argList) : Statement(keyword, argList) {}
+Directive::Directive(const std::string& keyword, arg* argList, Section* section) : Statement(keyword, argList, section) {}
 
 uint32_t Directive::getSize() {
 	if(keyword == "global") {
@@ -94,7 +94,7 @@ bool Directive::isValid() {
 			return false;
 	} 
 	else if(keyword == "word") {
-		if(arguments.size() == 0)
+		if(arguments.size() == 0 || section == nullptr)
 			return false;
 		for(arg* a : arguments) {
 			if(a->type != SYMBOL || a->type != LITERAL)
@@ -102,7 +102,7 @@ bool Directive::isValid() {
 		}
 	} 
 	else if(keyword == "skip") {
-		if(arguments.size() != 1)
+		if(arguments.size() != 1 || section == nullptr)
 			return false;
 		if(arguments[1]->type != LITERAL)
 			return false;
@@ -182,5 +182,31 @@ int32_t Directive::firstPass() {
 }
 
 int32_t Directive::secondPass() {
+	if(keyword == "global") {
+		for(arg* a : arguments) {
+			Assembler::getSymbolTable()[a->symbol]->setGlobal(true);
+		}
+	} 
+	else if(keyword == "extern") {
+
+	} 
+	else if(keyword == "section") {
+
+	}
+	else if(keyword == "word") {
+
+	} 
+	else if(keyword == "skip") {
+
+	} 
+	else if(keyword == "ascii") {
+
+	} 
+	else if(keyword == "equ") {
+
+	} 
+	else if(keyword == "end") {
+
+	}
 	return 0;
 }

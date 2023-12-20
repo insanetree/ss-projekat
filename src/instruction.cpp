@@ -29,33 +29,32 @@ std::set<std::string> Instruction::validKeywords{
 	"csrwr"
 };
 
-Instruction::Instruction(const std::string& keyword, arg* argList) : Statement(keyword, argList) {}
+Instruction::Instruction(const std::string& keyword, arg* argList, Section* section) : Statement(keyword, argList, section) {}
 
 uint32_t Instruction::getSize() {
 	return 4;
 }
 
 int32_t Instruction::firstPass() {
-	Section* currentSection = Assembler::getCurrentSection();
-	if(!currentSection)
+	if(!section)
 		return -1;
-	currentSection->addStatement(this);
+	section->addStatement(this);
 	Assembler::incrementLocationCounter(this->getSize());
 	if(keyword == "ld") {
 		if(arguments.front()->type == SYMBOL || arguments.front()->type == SYMBOL_DOLLAR) {
-			Assembler::getCurrentSection()->addSymbolToPool(arguments.front()->symbol);
+			section->addSymbolToPool(arguments.front()->symbol);
 		}
 		else if(arguments.front()->type == LITERAL || arguments.front()->type == LITERAL_DOLLAR) {
-			Assembler::getCurrentSection()->addLiteralToPool(arguments.front()->literal);
+			section->addLiteralToPool(arguments.front()->literal);
 		}
 	}
 	else if (keyword == "call" || keyword == "jmp" || keyword == "beq" ||
              keyword == "bne" || keyword == "bgt" || keyword == "st") {
 		if(arguments.back()->type == SYMBOL || arguments.back()->type == SYMBOL_DOLLAR) {
-			Assembler::getCurrentSection()->addSymbolToPool(arguments.back()->symbol);
+			section->addSymbolToPool(arguments.back()->symbol);
 		}
 		else if(arguments.back()->type == LITERAL || arguments.back()->type == LITERAL_DOLLAR) {
-			Assembler::getCurrentSection()->addLiteralToPool(arguments.back()->literal);
+			section->addLiteralToPool(arguments.back()->literal);
 		}
 	}
 	return 0;

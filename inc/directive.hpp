@@ -7,7 +7,7 @@
 
 class Directive : public Statement {
 public:
-    Directive(const std::string&, arg*);
+    Directive(const std::string&, arg*, Section*);
     virtual uint32_t getSize() override;
     virtual bool isValid() override;
     virtual int32_t firstPass() override;

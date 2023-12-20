@@ -3,6 +3,7 @@
 #include "section.hpp"
 #include "instruction.hpp"
 #include "directive.hpp"
+#include "stringPool.hpp"
 
 std::ifstream Assembler::input = std::ifstream();
 std::ofstream Assembler::output = std::ofstream();
@@ -11,6 +12,7 @@ std::unordered_map<std::string, Section*> Assembler::sectionTable;
 std::vector<Statement*> Assembler::statements;
 uint32_t Assembler::locationCounter = 0;
 Section* Assembler::currentSection = nullptr;
+StringPool Assembler::stringPool;
 
 bool Assembler::setInput(std::string filename) {
 	input.open(filename, std::ios::in);
@@ -35,6 +37,13 @@ int32_t Assembler::secondPass() {
 			return -1;
 		}
 	}
+	for(auto& s : symbolTable) {
+		stringPool.putString(s.first);
+	}
+	for(auto& s : sectionTable) {
+		stringPool.putString(s.first);
+	}
+	return 0;
 }
 
 Section* Assembler::getCurrentSection() {

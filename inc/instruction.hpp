@@ -5,7 +5,7 @@
 
 class Instruction : public Statement {
 public:
-	Instruction(const std::string&, arg*);
+	Instruction(const std::string&, arg*, Section*);
     virtual uint32_t getSize() override;
     virtual bool isValid() override;
     virtual int32_t firstPass() override;

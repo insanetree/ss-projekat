@@ -1,6 +1,6 @@
 #include "statement.hpp"
 
-Statement::Statement(const std::string& keyword, arg* argList=nullptr) : keyword(keyword) {
+Statement::Statement(const std::string& keyword, arg* argList=nullptr, Section* section=nullptr) : keyword(keyword), section(section) {
 	while(argList) {
 		arguments.push_back(argList);
 		argList = argList->next;
