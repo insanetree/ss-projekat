@@ -70,3 +70,19 @@ int32_t Section::secondPass() {
 	}
 	return 0;
 }
+
+void Section::incrementLocationCounter(uint32_t increment) {
+	locationCounter += increment;
+}
+
+uint32_t Section::getLocationCounter() {
+	return locationCounter;
+}
+
+void Section::putData(void* ptr, size_t size) {
+	binaryData.putData(ptr, size);
+}
+
+void Section::putRelocationData(uint32_t offset, Symbol* symbol) {
+	relocationTable.push_back({offset, symbol});
+}

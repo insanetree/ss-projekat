@@ -182,6 +182,7 @@ int32_t Directive::firstPass() {
 }
 
 int32_t Directive::secondPass() {
+	uint32_t value, offset;
 	if(keyword == "global") {
 		for(arg* a : arguments) {
 			Assembler::getSymbolTable()[a->symbol]->setGlobal(true);
@@ -194,7 +195,18 @@ int32_t Directive::secondPass() {
 
 	}
 	else if(keyword == "word") {
-
+		for(arg* a : arguments) {
+			if(a->type == SYMBOL) {
+				offset = section->getLocationCounter();
+				value = 0;
+				section->putRelocationData(offset, Assembler::getSymbolTable()[a->symbol]);
+			}
+			else if(a->type == LITERAL) {
+				value = a->literal;
+			}
+			section->putData(&value, sizeof(uint32_t));
+			section->incrementLocationCounter(sizeof(uint32_t));
+		}
 	} 
 	else if(keyword == "skip") {
 
