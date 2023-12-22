@@ -31,3 +31,42 @@ void Section::addSymbolToPool(std::string& symbol, uint32_t offset) {
 void Section::addLiteralToPool(uint32_t literal, uint32_t offset) {
 	literalPool[literal] = offset;
 } 
+
+uint32_t Section::getRelativeOffsetToSymbol(const std::string& symbol) {
+	return size - locationCounter + symbolPool[symbol];
+}
+
+uint32_t Section::getRelativeOffsetToLiteral(uint32_t literal) {
+	return size - locationCounter + symbolPool.size()*sizeof(uint32_t) + literalPool[literal];
+}
+
+int32_t Section::secondPass() {
+	uint32_t offset = 0, value;
+	for(auto& sym : symbolPool) {
+		sym.second = offset;
+		Symbol* s = Assembler::getSymbolTable()[sym.first];
+		relocationTable.push_back({size+offset, s});
+		offset += sizeof(uint32_t);
+	}
+	offset = 0;
+	for(auto& lit : literalPool) {
+		lit.second = offset;
+		offset += sizeof(uint32_t);
+	}
+
+	for(Statement* s : statements) {
+		if(s->secondPass()) {
+			return -1;
+		}
+	}
+
+	for(auto& sym : symbolPool) {
+		value = 0;
+		binaryData.putData(&value, sizeof(uint32_t));
+	}
+	for(auto& lit : literalPool) {
+		value = lit.first;
+		binaryData.putData(&value, sizeof(uint32_t));
+	}
+	return 0;
+}

@@ -43,6 +43,11 @@ int32_t Assembler::secondPass() {
 	for(auto& s : sectionTable) {
 		stringPool.putString(s.first);
 	}
+	for(auto& section : sectionTable) {
+		if(section.second->secondPass()) {
+			return -1;
+		}
+	}
 	return 0;
 }
 
