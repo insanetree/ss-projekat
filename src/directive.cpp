@@ -210,7 +210,7 @@ int32_t Directive::secondPass() {
 	} 
 	else if(keyword == "skip") {
 		uint8_t skip = 0;
-		for(uint32_t i = 0 ; i<arguments[0]->literal ; i++) {
+		for(int32_t i = 0 ; i<arguments[0]->literal ; i++) {
 			section->putData(&skip, sizeof(uint8_t));
 			section->incrementLocationCounter(sizeof(uint8_t));
 		}

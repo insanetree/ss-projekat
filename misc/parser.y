@@ -190,7 +190,9 @@
     newArgument->type = REGISTER_VALUE;
     uint32_t reg = getRegisterNum(std::string($2));
     if(reg < 0) YYABORT;
-    if(reg > 15) newArgument->type = REGISTER_VALUE_CSR;
+    if(reg > 15) {
+      newArgument->type = REGISTER_VALUE_CSR; 
+    }
     newArgument->registerNumber = reg;
     newArgument->next = nullptr;
     $$ = newArgument;

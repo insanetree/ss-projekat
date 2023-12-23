@@ -33,7 +33,10 @@ void Section::addLiteralToPool(uint32_t literal, uint32_t offset) {
 } 
 
 uint32_t Section::getRelativeOffsetToSymbol(const std::string& symbol) {
-	return size - locationCounter + symbolPool[symbol];
+	if(Assembler::getSymbolTable()[symbol]->getSection() != id)
+		return size - locationCounter + symbolPool[symbol];
+	else
+		return Assembler::getSymbolTable()[symbol]->getValue() - locationCounter;
 }
 
 uint32_t Section::getRelativeOffsetToLiteral(uint32_t literal) {
@@ -60,7 +63,7 @@ int32_t Section::secondPass() {
 		}
 	}
 
-	for(auto& sym : symbolPool) {
+	for(size_t i = 0 ; i < symbolPool.size() ; i++) {
 		value = 0;
 		binaryData.putData(&value, sizeof(uint32_t));
 	}
@@ -81,6 +84,10 @@ uint32_t Section::getLocationCounter() {
 
 void Section::putData(void* ptr, size_t size) {
 	binaryData.putData(ptr, size);
+}
+
+void Section::putDataReverse(void* ptr, size_t size) {
+	binaryData.putDataReverse(ptr, size);
 }
 
 void Section::putRelocationData(uint32_t offset, Symbol* symbol) {

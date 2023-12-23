@@ -21,6 +21,7 @@ public:
 	void incrementLocationCounter(uint32_t);
 	uint32_t getLocationCounter();
 	void putData(void*, size_t);
+	void putDataReverse(void*, size_t);
 	void putRelocationData(uint32_t, Symbol*);
 	struct relData {
 		uint32_t offset;

@@ -6,6 +6,7 @@
 class BinaryBlock {
 public:
 	void putData(void*, size_t);
+	void putDataReverse(void*, size_t);
 private:
 	std::vector<uint8_t> binaryData;
 };
