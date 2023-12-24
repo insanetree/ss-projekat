@@ -34,6 +34,8 @@ Instruction::Instruction(const std::string& keyword, arg* argList, Section* sect
 uint32_t Instruction::getSize() {
 	if(keyword == "iret")
 		return 8;
+	if(keyword == "ld" && (arguments[0]->type == SYMBOL || arguments[0]->type == LITERAL))
+		return 8;
 	return 4;
 }
 
@@ -124,17 +126,16 @@ bool Instruction::isValid() {
 }
 
 int32_t Instruction::secondPass() {
-	uint32_t op, mod, regA, regB, regC, disp, write;
+	int32_t op, mod, regA, regB, regC, disp;
+	uint32_t write;
 	section->incrementLocationCounter(4);
 	if (keyword == "halt") {
-		write = 0;
-		section->putDataReverse(&write, sizeof(uint32_t));
+		op = mod = regA = regB = regC = disp = 0;
 	}
 	else if (keyword == "int") {
 		op = 0b0001;
 		mod = regA = regB = regC = disp = 0;
 		write = (op<<28);
-		section->putDataReverse(&write, sizeof(uint32_t));
 	}
 	else if (keyword == "iret") {
 		//TODO
@@ -148,16 +149,10 @@ int32_t Instruction::secondPass() {
 			mod = 0b0001;
 			disp = section->getRelativeOffsetToLiteral(arguments[0]->literal);
 		}
-		else if(Assembler::getSymbolTable()[arguments[0]->symbol]->getSection() == section->getId()) {
-			mod = 0b0000;
-			disp = section->getRelativeOffsetToSymbol(arguments[0]->symbol);
-		}
 		else {
 			mod = 0b0001;
 			disp = section->getRelativeOffsetToSymbol(arguments[0]->symbol);
 		}
-		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
-		section->putDataReverse(&write, sizeof(uint32_t));
 	}
 	else if (keyword == "ret") {
 		op = 0b1001;
@@ -166,8 +161,6 @@ int32_t Instruction::secondPass() {
 		regB = 14;
 		regC = 0;
 		disp = 4;
-		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
-		section->putDataReverse(&write, sizeof(uint32_t));
 	}
 	else if (keyword == "jmp") {
 		op = 0b0011;
@@ -175,18 +168,12 @@ int32_t Instruction::secondPass() {
 			mod = 0b1000;
 			disp = section->getRelativeOffsetToLiteral(arguments.back()->literal);
 		}
-		else if(Assembler::getSymbolTable()[arguments.back()->symbol]->getSection() == section->getId()) {
-			mod = 0b0000;
-			disp = section->getRelativeOffsetToSymbol(arguments.back()->symbol);
-		}
 		else {
 			mod = 0b1000;
 			disp = section->getRelativeOffsetToSymbol(arguments.back()->symbol);
 		}		
 		regA = 15;
 		regB = regC = 0;
-		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
-		section->putDataReverse(&write, sizeof(uint32_t));
 	}
 	else if (keyword == "beq") {
 		op = 0b0011;
@@ -194,10 +181,6 @@ int32_t Instruction::secondPass() {
 			mod = 0b1001;
 			disp = section->getRelativeOffsetToLiteral(arguments.back()->literal);
 		}
-		else if(Assembler::getSymbolTable()[arguments.back()->symbol]->getSection() == section->getId()) {
-			mod = 0b0001;
-			disp = section->getRelativeOffsetToSymbol(arguments.back()->symbol);
-		}
 		else {
 			mod = 0b1001;
 			disp = section->getRelativeOffsetToSymbol(arguments.back()->symbol);
@@ -205,8 +188,6 @@ int32_t Instruction::secondPass() {
 		regA = 15;
 		regB = arguments[0]->registerNumber;
 		regC = arguments[1]->registerNumber;
-		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
-		section->putDataReverse(&write, sizeof(uint32_t));
 	}
 	else if (keyword == "bne") {
 		op = 0b0011;
@@ -214,10 +195,6 @@ int32_t Instruction::secondPass() {
 			mod = 0b1010;
 			disp = section->getRelativeOffsetToLiteral(arguments.back()->literal);
 		}
-		else if(Assembler::getSymbolTable()[arguments.back()->symbol]->getSection() == section->getId()) {
-			mod = 0b0010;
-			disp = section->getRelativeOffsetToSymbol(arguments.back()->symbol);
-		}
 		else {
 			mod = 0b1010;
 			disp = section->getRelativeOffsetToSymbol(arguments.back()->symbol);
@@ -225,18 +202,12 @@ int32_t Instruction::secondPass() {
 		regA = 15;
 		regB = arguments[0]->registerNumber;
 		regC = arguments[1]->registerNumber;
-		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
-		section->putDataReverse(&write, sizeof(uint32_t));
 	}
 	else if (keyword == "bgt") {
 		op = 0b0011;
 		if(arguments.back()->type == LITERAL) {
 			mod = 0b1011;
 			disp = section->getRelativeOffsetToLiteral(arguments.back()->literal);
-		}
-		else if(Assembler::getSymbolTable()[arguments.back()->symbol]->getSection() == section->getId()) {
-			mod = 0b0011;
-			disp = section->getRelativeOffsetToSymbol(arguments.back()->symbol);
 		}
 		else {
 			mod = 0b1011;
@@ -245,8 +216,6 @@ int32_t Instruction::secondPass() {
 		regA = 15;
 		regB = arguments[0]->registerNumber;
 		regC = arguments[1]->registerNumber;
-		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
-		section->putDataReverse(&write, sizeof(uint32_t));
 	}
 	else if (keyword == "push") {
 	}
@@ -257,8 +226,6 @@ int32_t Instruction::secondPass() {
 		regB = 14;
 		regC = 0;
 		disp = 4;
-		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
-		section->putDataReverse(&write, sizeof(uint32_t));
 	}
 	else if (keyword == "xchg") {
 		op = 0b0100;
@@ -267,8 +234,6 @@ int32_t Instruction::secondPass() {
 		regB = arguments[0]->registerNumber;
 		regC = arguments[1]->registerNumber;
 		disp = 0;
-		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
-		section->putDataReverse(&write, sizeof(uint32_t));
 	}
 	else if (keyword == "add") {
 		op = 0b0101;
@@ -276,8 +241,6 @@ int32_t Instruction::secondPass() {
 		regA = regB = arguments[1]->registerNumber;
 		regC = arguments[0]->registerNumber;
 		disp = 0;
-		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
-		section->putDataReverse(&write, sizeof(uint32_t));
 	}
 	else if (keyword == "sub") {
 		op = 0b0101;
@@ -285,8 +248,6 @@ int32_t Instruction::secondPass() {
 		regA = regB = arguments[1]->registerNumber;
 		regC = arguments[0]->registerNumber;
 		disp = 0;
-		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
-		section->putDataReverse(&write, sizeof(uint32_t));	
 	}
 	else if (keyword == "mul") {
 		op = 0b0101;
@@ -294,8 +255,6 @@ int32_t Instruction::secondPass() {
 		regA = regB = arguments[1]->registerNumber;
 		regC = arguments[0]->registerNumber;
 		disp = 0;
-		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
-		section->putDataReverse(&write, sizeof(uint32_t));
 	}
 	else if (keyword == "div") {
 		op = 0b0101;
@@ -303,8 +262,6 @@ int32_t Instruction::secondPass() {
 		regA = regB = arguments[1]->registerNumber;
 		regC = arguments[0]->registerNumber;
 		disp = 0;
-		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
-		section->putDataReverse(&write, sizeof(uint32_t));
 	}
 	else if (keyword == "not") {
 		op = 0b0110;
@@ -312,8 +269,6 @@ int32_t Instruction::secondPass() {
 		regA = regB = arguments[0]->registerNumber;
 		regC = 0;
 		disp = 0;
-		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
-		section->putDataReverse(&write, sizeof(uint32_t));
 	}
 	else if (keyword == "and") {
 		op = 0b0110;
@@ -321,8 +276,6 @@ int32_t Instruction::secondPass() {
 		regA = regB = arguments[1]->registerNumber;
 		regC = arguments[0]->registerNumber;
 		disp = 0;
-		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
-		section->putDataReverse(&write, sizeof(uint32_t));
 	}
 	else if (keyword == "or") {
 		op = 0b0110;
@@ -330,8 +283,6 @@ int32_t Instruction::secondPass() {
 		regA = regB = arguments[1]->registerNumber;
 		regC = arguments[0]->registerNumber;
 		disp = 0;
-		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
-		section->putDataReverse(&write, sizeof(uint32_t));
 	}
 	else if (keyword == "xor") {
 		op = 0b0110;
@@ -339,8 +290,6 @@ int32_t Instruction::secondPass() {
 		regA = regB = arguments[1]->registerNumber;
 		regC = arguments[0]->registerNumber;
 		disp = 0;
-		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
-		section->putDataReverse(&write, sizeof(uint32_t));
 	}
 	else if (keyword == "shl") {
 		op = 0b0111;
@@ -348,8 +297,6 @@ int32_t Instruction::secondPass() {
 		regA = regB = arguments[1]->registerNumber;
 		regC = arguments[0]->registerNumber;
 		disp = 0;
-		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
-		section->putDataReverse(&write, sizeof(uint32_t));
 	}
 	else if (keyword == "shr") {
 		op = 0b0111;
@@ -357,16 +304,106 @@ int32_t Instruction::secondPass() {
 		regA = regB = arguments[1]->registerNumber;
 		regC = arguments[0]->registerNumber;
 		disp = 0;
-		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
-		section->putDataReverse(&write, sizeof(uint32_t));
 	}
 	else if (keyword == "ld") {
+		op = 0b1001;
+		regA = arguments[1]->registerNumber;
+		switch(arguments[0]->type) {
+			case SYMBOL:
+				mod = 0b0010;
+				regB = 15;
+				regC = 0;
+				disp = section->getRelativeOffsetToSymbol(arguments[0]->symbol);
+				write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
+				section->putDataReverse(&write, sizeof(uint32_t));
+				section->incrementLocationCounter(4);
+				regB = regA;
+				disp = 0;
+			break;
+			case SYMBOL_DOLLAR:
+				mod = 0b0010;
+				regB = 15;
+				regC = 0;
+				disp = section->getRelativeOffsetToSymbol(arguments[0]->symbol);
+			break;
+			case LITERAL:
+				mod = 0b0010;
+				regB = 15;
+				regC = 0;
+				disp = section->getRelativeOffsetToLiteral(arguments[0]->literal);
+				write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
+				section->putDataReverse(&write, sizeof(uint32_t));
+				section->incrementLocationCounter(4);
+				regB = regA;
+				disp = 0;
+			break;
+			case LITERAL_DOLLAR:
+				mod = 0b0010;
+				regB = 15;
+				regC = 0;
+				disp = section->getRelativeOffsetToLiteral(arguments[0]->literal);
+			break;
+			case REGISTER_VALUE:
+				mod = 0b0001;
+				regB = arguments[0]->registerNumber;
+				regC = 0;
+				disp = 0;
+			break;
+			case REGISTER_MEMORY:
+				mod = 0b0010;
+				regB = arguments[0]->registerNumber;
+				regC = 0;
+				disp = 0;
+			break;
+			case REGISTER_SYMBOL_MEMORY:
+				if(Assembler::getSymbolTable()[arguments[0]->symbol]->getSection() != 0) {
+					std::cerr<<"Value of symbol "<<arguments[0]->symbol<<" can't be determined"<<std::endl;
+					return -1;
+				}
+				mod = 0b0010;
+				regB = arguments[0]->registerNumber;
+				regC = 0;
+				disp = Assembler::getSymbolTable()[arguments[0]->symbol]->getValue();
+				if(disp <= -0xfff || disp >= 0x7ff) {
+					std::cerr<<"Value of symbol "<<arguments[0]->symbol<<" larger than 12 bits signed"<<std::endl;
+					return -1;
+				}
+			break;
+			case REGISTER_LITERAL_MEMORY:
+				mod = 0b0010;
+				regB = arguments[0]->registerNumber;
+				regC = 0;
+				disp = arguments[0]->literal;
+				if(disp <= -0xfff || disp >= 0x7ff) {
+					std::cerr<<"Value of literal "<<arguments[0]->literal<<" larger than 12 bits signed"<<std::endl;
+					return -1;
+				}
+			break;
+			default:
+				std::cerr<<"ld argument type undefined"<<std::endl;
+				return -1;
+			break;
+		}
 	}
 	else if (keyword == "st") {
 	}
 	else if (keyword == "csrrd") {
+		op = 0b1001;
+		mod = 0b0000;
+		regA = arguments[1]->registerNumber;
+		regB = arguments[0]->registerNumber & 0xf;
+		regC = 0;
+		disp = 0;
 	}
 	else if (keyword == "csrwr") {
+		op = 0b1001;
+		mod = 0b0100;
+		regA = arguments[1]->registerNumber & 0xf;
+		regB = arguments[0]->registerNumber;
+		regC = 0;
+		disp = 0;
 	}
+	write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
+	section->putDataReverse(&write, sizeof(uint32_t));
 	return 0;
 }

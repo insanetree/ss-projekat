@@ -26,6 +26,7 @@ public:
 	struct relData {
 		uint32_t offset;
 		Symbol* symbol;
+		uint32_t addend;
 		relData(uint32_t offset, Symbol* symbol) : offset(offset), symbol(symbol) {}
 	};
 private:

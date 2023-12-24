@@ -28,6 +28,12 @@ typedef enum {
     REGISTER_VALUE_CSR
 }argumentType;
 
+typedef enum : uint32_t {
+    NOTYPE,
+    SECTION,
+    COMMON
+}symbolType;
+
 struct arg {
     argumentType type;
     int32_t registerNumber;

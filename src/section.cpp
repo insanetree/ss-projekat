@@ -33,10 +33,7 @@ void Section::addLiteralToPool(uint32_t literal, uint32_t offset) {
 } 
 
 uint32_t Section::getRelativeOffsetToSymbol(const std::string& symbol) {
-	if(Assembler::getSymbolTable()[symbol]->getSection() != id)
-		return size - locationCounter + symbolPool[symbol];
-	else
-		return Assembler::getSymbolTable()[symbol]->getValue() - locationCounter;
+	return size - locationCounter + symbolPool[symbol];
 }
 
 uint32_t Section::getRelativeOffsetToLiteral(uint32_t literal) {
@@ -47,6 +44,10 @@ int32_t Section::secondPass() {
 	uint32_t offset = 0, value;
 	for(auto& sym : symbolPool) {
 		sym.second = offset;
+		if(Assembler::getSymbolTable().find(sym.first) == Assembler::getSymbolTable().end()) {
+			std::cerr<<"Symbol "<<sym.first<<" is not defined"<<std::endl;
+			return -1;
+		}
 		Symbol* s = Assembler::getSymbolTable()[sym.first];
 		relocationTable.push_back({size+offset, s});
 		offset += sizeof(uint32_t);
