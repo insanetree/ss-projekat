@@ -392,7 +392,7 @@ int32_t Instruction::secondPass() {
 				regB = arguments[0]->registerNumber;
 				regC = 0;
 				disp = arguments[0]->literal;
-				if(disp < -0x800 || disp > 0x7ff) {
+				if(disp & 0xfffff000) {
 					std::cerr<<"Value of literal "<<arguments[0]->literal<<" larger than 12 bits signed"<<std::endl;
 					return -1;
 				}

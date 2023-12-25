@@ -213,6 +213,10 @@
     if(reg < 0 || reg > 15) YYABORT;
     newArgument->registerNumber = reg;
     newArgument->literal = $5;
+    if(static_const<uint32_t>(newArgument->literal) & 0xfffff000) {
+      std::cerr<<"Literal "<<newArgument->literal<<" larger than 12 bits"<<std::endl;
+      YYABORT;
+    }
     newArgument->next = nullptr;
     $$ = newArgument;
   }
