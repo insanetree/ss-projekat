@@ -7,7 +7,7 @@ void BinaryBlock::putData(void* ptr, size_t size) {
 }
 
 void BinaryBlock::putDataReverse(void* ptr, size_t size) {
-	for(size_t i = size-1 ; i >= 0 ; i--) {
+	for(int i = size-1 ; i >= 0 ; i--) {
 		binaryData.push_back(*(static_cast<uint8_t*>(ptr)+i));	
 	}
 }
