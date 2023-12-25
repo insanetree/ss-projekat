@@ -109,6 +109,8 @@ bool Instruction::isValid() {
 			return false;
 		if(arguments[0]->type != REGISTER_VALUE)
 			return false;
+		if(arguments[1]->type == SYMBOL_DOLLAR || arguments[1]->type == LITERAL_DOLLAR || arguments[1]->type == REGISTER_VALUE)
+			return false;
 	}
 	else if(keyword == "csrrd") {
 		if(arguments.size()!=2)
@@ -138,7 +140,17 @@ int32_t Instruction::secondPass() {
 		write = (op<<28);
 	}
 	else if (keyword == "iret") {
-		//TODO
+		op = 0b1001;
+		mod = 0b0011;
+		regA = 15;
+		regB = 14;
+		regC = 0;
+		disp = 4;
+		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
+		section->putDataReverse(&write, sizeof(uint32_t));
+		section->incrementLocationCounter(4);
+		mod = 0b0111;
+		regA = 0;
 	}
 	else if (keyword == "call") {
 		op = 0b0010;
@@ -218,6 +230,12 @@ int32_t Instruction::secondPass() {
 		regC = arguments[1]->registerNumber;
 	}
 	else if (keyword == "push") {
+		op = 0b1000;
+		mod = 0b0001;
+		regA = 14;
+		regB = 0;
+		regC = arguments[0]->registerNumber;
+		disp = -4;
 	}
 	else if (keyword == "pop") {
 		op = 0b1001;
@@ -364,7 +382,7 @@ int32_t Instruction::secondPass() {
 				regB = arguments[0]->registerNumber;
 				regC = 0;
 				disp = Assembler::getSymbolTable()[arguments[0]->symbol]->getValue();
-				if(disp <= -0xfff || disp >= 0x7ff) {
+				if(disp < -0xfff || disp > 0x7ff) {
 					std::cerr<<"Value of symbol "<<arguments[0]->symbol<<" larger than 12 bits signed"<<std::endl;
 					return -1;
 				}
@@ -374,7 +392,7 @@ int32_t Instruction::secondPass() {
 				regB = arguments[0]->registerNumber;
 				regC = 0;
 				disp = arguments[0]->literal;
-				if(disp <= -0xfff || disp >= 0x7ff) {
+				if(disp < -0xfff || disp > 0x7ff) {
 					std::cerr<<"Value of literal "<<arguments[0]->literal<<" larger than 12 bits signed"<<std::endl;
 					return -1;
 				}
@@ -386,6 +404,56 @@ int32_t Instruction::secondPass() {
 		}
 	}
 	else if (keyword == "st") {
+		op = 0b1000;
+		regC = arguments[0]->registerNumber;
+		switch(arguments[1]->type) {
+			case SYMBOL:
+				mod = 0b0010;
+				regA = 15;
+				regB = 0;
+				disp = section->getRelativeOffsetToSymbol(arguments[1]->symbol);
+			break;
+			case LITERAL:
+				mod = 0b0010;
+				regA = 15;
+				regB = 0;
+				disp = section->getRelativeOffsetToLiteral(arguments[1]->literal);
+			break;
+			case REGISTER_MEMORY:
+				mod = 0b0000;
+				regA = arguments[1]->registerNumber;
+				regB = 0;
+				disp = 0;
+			break;
+			case REGISTER_SYMBOL_MEMORY:
+				if(Assembler::getSymbolTable()[arguments[1]->symbol]->getSection() != 0) {
+					std::cerr<<"Value of symbol "<<arguments[1]->symbol<<" can't be determined"<<std::endl;
+					return -1;
+				}
+				mod = 0b0000;
+				regA = arguments[1]->registerNumber;
+				regB = 0;
+				disp = Assembler::getSymbolTable()[arguments[1]->symbol]->getValue();
+				if(disp < -0xfff || disp > 0x7ff) {
+					std::cerr<<"Value of symbol "<<arguments[1]->symbol<<" larger than 12 bits signed"<<std::endl;
+					return -1;
+				}
+			break;
+			case REGISTER_LITERAL_MEMORY:
+				mod = 0b0000;
+				regA = arguments[1]->registerNumber;
+				regB = 0;
+				disp = arguments[1]->literal;
+				if(disp < -0xfff || disp > 0x7ff) {
+					std::cerr<<"Value of literal "<<arguments[1]->literal<<" larger than 12 bits signed"<<std::endl;
+					return -1;
+				}
+			break;
+			default:
+				std::cerr<<"st argument type undefined"<<std::endl;
+				return -1;
+			break;
+		}
 	}
 	else if (keyword == "csrrd") {
 		op = 0b1001;
