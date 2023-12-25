@@ -382,7 +382,7 @@ int32_t Instruction::secondPass() {
 				regB = arguments[0]->registerNumber;
 				regC = 0;
 				disp = Assembler::getSymbolTable()[arguments[0]->symbol]->getValue();
-				if(disp < -0xfff || disp > 0x7ff) {
+				if(disp < -0x800 || disp > 0x7ff) {
 					std::cerr<<"Value of symbol "<<arguments[0]->symbol<<" larger than 12 bits signed"<<std::endl;
 					return -1;
 				}
@@ -392,7 +392,7 @@ int32_t Instruction::secondPass() {
 				regB = arguments[0]->registerNumber;
 				regC = 0;
 				disp = arguments[0]->literal;
-				if(disp < -0xfff || disp > 0x7ff) {
+				if(disp < -0x800 || disp > 0x7ff) {
 					std::cerr<<"Value of literal "<<arguments[0]->literal<<" larger than 12 bits signed"<<std::endl;
 					return -1;
 				}
@@ -434,7 +434,7 @@ int32_t Instruction::secondPass() {
 				regA = arguments[1]->registerNumber;
 				regB = 0;
 				disp = Assembler::getSymbolTable()[arguments[1]->symbol]->getValue();
-				if(disp < -0xfff || disp > 0x7ff) {
+				if(disp < -0x800 || disp > 0x7ff) {
 					std::cerr<<"Value of symbol "<<arguments[1]->symbol<<" larger than 12 bits signed"<<std::endl;
 					return -1;
 				}
@@ -444,7 +444,7 @@ int32_t Instruction::secondPass() {
 				regA = arguments[1]->registerNumber;
 				regB = 0;
 				disp = arguments[1]->literal;
-				if(disp < -0xfff || disp > 0x7ff) {
+				if(disp < -0x800 || disp > 0x7ff) {
 					std::cerr<<"Value of literal "<<arguments[1]->literal<<" larger than 12 bits signed"<<std::endl;
 					return -1;
 				}
