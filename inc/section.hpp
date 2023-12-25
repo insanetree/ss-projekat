@@ -25,9 +25,9 @@ public:
 	void putRelocationData(uint32_t, Symbol*);
 	struct relData {
 		uint32_t offset;
-		Symbol* symbol;
+		uint32_t symbolId;
 		uint32_t addend;
-		relData(uint32_t offset, Symbol* symbol) : offset(offset), symbol(symbol) {}
+		relData(uint32_t offset, uint32_t symbol, uint32_t addend) : offset(offset), symbolId(symbol), addend(addend) {}
 	};
 private:
 	static int32_t nextId;

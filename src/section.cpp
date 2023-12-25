@@ -49,7 +49,7 @@ int32_t Section::secondPass() {
 			return -1;
 		}
 		Symbol* s = Assembler::getSymbolTable()[sym.first];
-		relocationTable.push_back({size+offset, s});
+		putRelocationData(offset, s);
 		offset += sizeof(uint32_t);
 	}
 	offset = 0;
@@ -64,8 +64,9 @@ int32_t Section::secondPass() {
 		}
 	}
 
-	for(size_t i = 0 ; i < symbolPool.size() ; i++) {
-		value = 0;
+	for(auto& sym : symbolPool) {
+		Symbol* s = Assembler::getSymbolTable()[sym.first];
+		value = (s->getType()==COMMON)?(s->getValue()):(0);
 		binaryData.putData(&value, sizeof(uint32_t));
 	}
 	for(auto& lit : literalPool) {
@@ -92,5 +93,11 @@ void Section::putDataReverse(void* ptr, size_t size) {
 }
 
 void Section::putRelocationData(uint32_t offset, Symbol* symbol) {
-	relocationTable.push_back({offset, symbol});
+	if(symbol->getType() == COMMON)
+		return;
+	if(symbol->isGlobal()) {
+		relocationTable.push_back({offset, symbol->getID(), 0});
+	} else {
+		relocationTable.push_back({offset, Assembler::getSymbolTable()[getName()]->getID(), symbol->getValue()});
+	}
 }

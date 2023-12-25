@@ -54,15 +54,19 @@
 %type <arg> argList;
 
 %%
-  prog: 
-  | line prog
+  prog: body
+  | endline prog
   ;
 
-  line: label endline
-  | instruction endline
-  | directive endline
-  | label instruction endline
-  | label directive endline
+  body:
+  | line endline body
+  ;
+
+  line: label
+  | instruction
+  | directive
+  | label instruction
+  | label directive
   ;
 
   endline: TOKEN_ENDLINE
@@ -81,7 +85,7 @@
       std::cerr<<"label "<<label<<" already defined"<<std::endl;
       YYABORT;
     }
-    Symbol* newSymbol = new Symbol(label, Assembler::getLocationCounter(), false, Assembler::getCurrentSection()->getId());
+    Symbol* newSymbol = new Symbol(label, Assembler::getLocationCounter(), false, Assembler::getCurrentSection()->getId(), NOTYPE);
     Assembler::getSymbolTable().insert({label, newSymbol});
   }
   ;
@@ -112,10 +116,12 @@
     }
     Statement* newInstruction = new Instruction(instruction, $2, Assembler::getCurrentSection());
     if(!newInstruction->isValid()) {
+      std::cerr<<"instruction "<<instruction<<" is not valid"<<std::endl;
       delete newInstruction;
       YYABORT;
     }
     if(newInstruction->firstPass()) {
+      std::cerr<<"instruction "<<instruction<<" failed first pass"<<std::endl;
       delete newInstruction;
       YYABORT;
     }
@@ -213,7 +219,7 @@
     if(reg < 0 || reg > 15) YYABORT;
     newArgument->registerNumber = reg;
     newArgument->literal = $5;
-    if(static_const<uint32_t>(newArgument->literal) & 0xfffff000) {
+    if(static_cast<uint32_t>(newArgument->literal) & 0xfffff000) {
       std::cerr<<"Literal "<<newArgument->literal<<" larger than 12 bits"<<std::endl;
       YYABORT;
     }

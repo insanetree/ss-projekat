@@ -5,7 +5,7 @@
 
 class Symbol{
 public:
-	Symbol(const std::string& name, uint32_t value, bool global, int32_t section);
+	Symbol(const std::string& name, uint32_t value, bool global, int32_t section, symbolType type);
 	uint32_t getID() const;
 	std::string getName() const;
 	void setName(std::string name);
@@ -15,6 +15,8 @@ public:
 	void setGlobal(bool global);
 	int32_t getSection() const;
 	void setSection(int32_t section);
+	symbolType getType() const;
+	void setType(symbolType);
 protected:
 private:
 	static uint32_t next_id;
@@ -23,6 +25,7 @@ private:
 	uint32_t value;
 	int32_t section; //-1: UNKNOWN 0: COMMON else:sectionId
 	bool global;
+	symbolType type;
 };
 
 #endif

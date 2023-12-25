@@ -46,8 +46,7 @@ int32_t Instruction::firstPass() {
 	Assembler::incrementLocationCounter(this->getSize());
 	if(keyword == "ld") {
 		if(arguments.front()->type == SYMBOL || arguments.front()->type == SYMBOL_DOLLAR) {
-			if(Assembler::getSymbolTable()[arguments[0]->symbol]->getSection() != section->getId())
-				section->addSymbolToPool(arguments.front()->symbol);
+            section->addSymbolToPool(arguments.front()->symbol);
 		}
 		else if(arguments.front()->type == LITERAL || arguments.front()->type == LITERAL_DOLLAR) {
 			section->addLiteralToPool(arguments.front()->literal);
@@ -56,8 +55,7 @@ int32_t Instruction::firstPass() {
 	else if (keyword == "call" || keyword == "jmp" || keyword == "beq" ||
              keyword == "bne" || keyword == "bgt" || keyword == "st") {
 		if(arguments.back()->type == SYMBOL || arguments.back()->type == SYMBOL_DOLLAR) {
-			if(Assembler::getSymbolTable()[arguments.back()->symbol]->getSection() != section->getId())
-				section->addSymbolToPool(arguments.back()->symbol);
+            section->addSymbolToPool(arguments.back()->symbol);
 		}
 		else if(arguments.back()->type == LITERAL || arguments.back()->type == LITERAL_DOLLAR) {
 			section->addLiteralToPool(arguments.back()->literal);
@@ -75,7 +73,7 @@ bool Instruction::isValid() {
 		}
 	}
 	else if(keyword == "call" || keyword == "jmp") {
-		if(arguments.size()!=1 || arguments[0]->type != SYMBOL || arguments[0]->type != LITERAL)
+		if(arguments.size()!=1 || !(arguments[0]->type == SYMBOL || arguments[0]->type == LITERAL))
 			return false;
 	}
 	else if(keyword == "push" || keyword == "pop" || keyword == "not") {
@@ -85,7 +83,7 @@ bool Instruction::isValid() {
 			return false;
 	}
 	else if(keyword == "beq" || keyword == "bne" || keyword == "bgt") {
-		if(arguments.size()!=3 || arguments[2]->type != SYMBOL || arguments[2]->type != LITERAL)
+		if(arguments.size()!=3 || !(arguments[2]->type == SYMBOL || arguments[2]->type == LITERAL))
 			return false;
 		if(arguments[0]->type != REGISTER_VALUE || arguments[1]->type != REGISTER_VALUE)
 			return false;
