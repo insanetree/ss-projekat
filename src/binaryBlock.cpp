@@ -11,3 +11,7 @@ void BinaryBlock::putDataReverse(void* ptr, size_t size) {
 		binaryData.push_back(*(static_cast<uint8_t*>(ptr)+i));	
 	}
 }
+
+uint8_t* BinaryBlock::getData() {
+	return (binaryData.data());
+}

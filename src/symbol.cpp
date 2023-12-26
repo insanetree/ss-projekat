@@ -1,6 +1,6 @@
 #include "symbol.hpp"
 
-uint32_t Symbol::next_id = 0;
+uint32_t Symbol::next_id = 1;
 
 Symbol::Symbol(const std::string& name, uint32_t value, bool global=false, int32_t section=-1, symbolType type=NOTYPE)
 : name(name), value(value), section(section), global(global), type(type)

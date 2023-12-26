@@ -27,8 +27,11 @@ public:
 	static std::unordered_map<std::string, Symbol*>& getSymbolTable();
 	static std::unordered_map<std::string, Section*>& getSectionTable();
 private:
-	static std::ifstream input;
-	static std::ofstream output;
+	static void printTextFIle();
+
+	static FILE* input;
+	static FILE* output;
+	static FILE* outputText;
 	static std::unordered_map<std::string, Symbol*> symbolTable;
 	static std::unordered_map<std::string, Section*> sectionTable;
 	static std::vector<Statement*> statements;

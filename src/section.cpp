@@ -49,7 +49,7 @@ int32_t Section::secondPass() {
 			return -1;
 		}
 		Symbol* s = Assembler::getSymbolTable()[sym.first];
-		putRelocationData(offset, s);
+		putRelocationData(offset+size, s);
 		offset += sizeof(uint32_t);
 	}
 	offset = 0;
@@ -100,4 +100,24 @@ void Section::putRelocationData(uint32_t offset, Symbol* symbol) {
 	} else {
 		relocationTable.push_back({offset, Assembler::getSymbolTable()[getName()]->getID(), symbol->getValue()});
 	}
+}
+
+uint32_t Section::getBaseAddr() const {
+	return base;
+}
+
+void Section::setBaseAddr(uint32_t base) {
+	this->base = base;
+}
+
+uint32_t Section::getSizeWithPools() const {
+	return size + (literalPool.size() + symbolPool.size())*sizeof(uint32_t);
+}
+
+uint8_t* Section::getData() {
+	return binaryData.getData();
+}
+
+std::vector<Section::relData>& Section::getRelocationTable() {
+	return relocationTable;
 }

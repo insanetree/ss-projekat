@@ -34,6 +34,10 @@ typedef enum : uint32_t {
     COMMON
 }symbolType;
 
+typedef enum : uint32_t {
+    R_32
+}relType;
+
 struct arg {
     argumentType type;
     int32_t registerNumber;

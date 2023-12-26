@@ -5,8 +5,9 @@
 #include "directive.hpp"
 #include "stringPool.hpp"
 
-std::ifstream Assembler::input = std::ifstream();
-std::ofstream Assembler::output = std::ofstream();
+FILE* Assembler::input = nullptr;
+FILE* Assembler::output = nullptr;
+FILE* Assembler::outputText = nullptr;
 std::unordered_map<std::string, Symbol*> Assembler::symbolTable;
 std::unordered_map<std::string, Section*> Assembler::sectionTable;
 std::vector<Statement*> Assembler::statements;
@@ -15,16 +16,19 @@ Section* Assembler::currentSection = nullptr;
 StringPool Assembler::stringPool;
 
 bool Assembler::setInput(std::string filename) {
-	input.open(filename, std::ios::in);
-	if(input.is_open()) {
-		yyin = fopen(filename.c_str(), "r");
+	input = fopen(filename.c_str(), "r");
+	if(input) {
+		yyin = input;
+		return true;
 	}
-	return input.is_open();
+	return false;
 }
 
 bool Assembler::setOutput(std::string filename) {
-	output.open(filename, std::ios::out | std::ios::binary);
-	return output.is_open();
+	output = fopen(filename.c_str(), "wb");
+	std::string filenameText = filename + ".txt";
+	outputText = fopen(filenameText.c_str(), "w");
+	return output && outputText;
 }
 
 int32_t Assembler::firstPass() {
@@ -53,6 +57,10 @@ int32_t Assembler::secondPass() {
 			return -1;
 		}
 	}
+	printTextFIle();
+	fclose(input);
+	fclose(output);
+	fclose(outputText);
 	return 0;
 }
 
@@ -86,6 +94,43 @@ void Assembler::incrementLocationCounter(uint32_t increment=4) {
 
 void Assembler::insertStatement(Statement* statement) {
 	statements.push_back(statement);
+}
+
+void Assembler::printTextFIle() {
+	fprintf(outputText, "SYMBOL_TABLE\n");
+	fprintf(outputText, "%10s %20s %10s %10s %10s %10s\n", "id", "name", "value", "section", "global", "type");
+	for(auto& sym: symbolTable) {
+			fprintf(outputText, "%10d %20s 0x%08x %10d %10d %10s\n", 
+				sym.second->getID(),
+				sym.second->getName().c_str(),
+				sym.second->getValue(),
+				sym.second->getSection(),
+				sym.second->isGlobal(),
+				(sym.second->getType() == NOTYPE)?("NOTYPE"):((sym.second->getType() == SECTION)?("SECTION"):("COMMON"))
+			);
+	}
+	fprintf(outputText, "SECTION_TABLE\n");
+	fprintf(outputText, "%10s %20s %10s %10s\n","id", "name", "baseAddr", "size");
+	for(auto& sec : sectionTable){
+		fprintf(outputText, "%10d %20s 0x%08x 0x%08x\n", 
+			sec.second->getId(),
+			sec.second->getName().c_str(),
+			sec.second->getBaseAddr(),
+			sec.second->getSizeWithPools()
+		);
+	}
+	for(auto& sec : sectionTable) {
+		Section* s = sec.second;
+		fprintf(outputText, "%s:\n", s->getName().c_str());
+		for(size_t i = 0 ; i < s->getSizeWithPools() ; i++) {
+			fprintf(outputText, "%02x%c", s->getData()[i], (i%8 == 7)?('\n'):(' '));
+		}
+		fprintf(outputText, "%s rel data:\n", s->getName().c_str());
+		fprintf(outputText, "%10s %10s %10s %10s\n","offset", "symbol", "addend", "type");
+		for(Section::relData& r : s->getRelocationTable()) {
+			fprintf(outputText, "0x%08x %10d 0x%08x %10s\n", r.offset, r.symbolId, r.addend, "R_32");
+		}
+	}
 }
 
 extern FILE* yyin;

@@ -7,11 +7,20 @@
 
 class Section {
 public:
+	struct relData {
+		uint32_t offset;
+		uint32_t symbolId;
+		uint32_t addend;
+		relData(uint32_t offset, uint32_t symbol, uint32_t addend) : offset(offset), symbolId(symbol), addend(addend) {}
+	};
 	Section(const std::string&);
 	int32_t getId() const;
 	uint32_t getSize() const;
+	uint32_t getSizeWithPools() const;
 	const std::string& getName() const;
 	void setSize(uint32_t);
+	uint32_t getBaseAddr() const;
+	void setBaseAddr(uint32_t);
 	void addStatement(Statement*);
 	void addSymbolToPool(std::string&, uint32_t = 0);
 	void addLiteralToPool(uint32_t, uint32_t = 0);
@@ -23,12 +32,9 @@ public:
 	void putData(void*, size_t);
 	void putDataReverse(void*, size_t);
 	void putRelocationData(uint32_t, Symbol*);
-	struct relData {
-		uint32_t offset;
-		uint32_t symbolId;
-		uint32_t addend;
-		relData(uint32_t offset, uint32_t symbol, uint32_t addend) : offset(offset), symbolId(symbol), addend(addend) {}
-	};
+	std::vector<relData>& getRelocationTable();
+	uint8_t* getData();
+
 private:
 	static int32_t nextId;
 	int32_t id = nextId++;
