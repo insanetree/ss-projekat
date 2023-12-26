@@ -97,7 +97,7 @@ bool Directive::isValid() {
 		if(arguments.size() == 0 || section == nullptr)
 			return false;
 		for(arg* a : arguments) {
-			if(a->type != SYMBOL || a->type != LITERAL)
+			if(a->type != SYMBOL && a->type != LITERAL)
 				return false;
 		}
 	} 
