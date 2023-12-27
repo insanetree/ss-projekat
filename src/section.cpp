@@ -118,6 +118,6 @@ uint8_t* Section::getData() {
 	return binaryData.getData();
 }
 
-std::vector<Section::relData>& Section::getRelocationTable() {
+std::vector<relData>& Section::getRelocationTable() {
 	return relocationTable;
 }

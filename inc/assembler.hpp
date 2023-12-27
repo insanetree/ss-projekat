@@ -28,6 +28,7 @@ public:
 	static std::unordered_map<std::string, Section*>& getSectionTable();
 private:
 	static void printTextFIle();
+	static void printBinaryFile();
 
 	static FILE* input;
 	static FILE* output;

@@ -5,6 +5,8 @@
 #include "directive.hpp"
 #include "stringPool.hpp"
 
+extern FILE* yyin;
+
 FILE* Assembler::input = nullptr;
 FILE* Assembler::output = nullptr;
 FILE* Assembler::outputText = nullptr;
@@ -58,6 +60,7 @@ int32_t Assembler::secondPass() {
 		}
 	}
 	printTextFIle();
+	printBinaryFile();
 	fclose(input);
 	fclose(output);
 	fclose(outputText);
@@ -97,9 +100,16 @@ void Assembler::insertStatement(Statement* statement) {
 }
 
 void Assembler::printTextFIle() {
+	std::map<uint32_t, Symbol*> symTablePrint;
+	std::map<uint32_t, Section*> secTablePrint;
+	for(auto& s : symbolTable)
+		symTablePrint.insert({s.second->getID(), s.second});
+	for(auto& s : sectionTable)
+		secTablePrint.insert({s.second->getId(), s.second});
+
 	fprintf(outputText, "SYMBOL_TABLE\n");
 	fprintf(outputText, "%10s %20s %10s %10s %10s %10s\n", "id", "name", "value", "section", "global", "type");
-	for(auto& sym: symbolTable) {
+	for(auto& sym: symTablePrint) {
 			fprintf(outputText, "%10d %20s 0x%08x %10d %10d %10s\n", 
 				sym.second->getID(),
 				sym.second->getName().c_str(),
@@ -111,7 +121,7 @@ void Assembler::printTextFIle() {
 	}
 	fprintf(outputText, "SECTION_TABLE\n");
 	fprintf(outputText, "%10s %20s %10s %10s\n","id", "name", "baseAddr", "size");
-	for(auto& sec : sectionTable){
+	for(auto& sec : secTablePrint){
 		fprintf(outputText, "%10d %20s 0x%08x 0x%08x\n", 
 			sec.second->getId(),
 			sec.second->getName().c_str(),
@@ -119,7 +129,7 @@ void Assembler::printTextFIle() {
 			sec.second->getSizeWithPools()
 		);
 	}
-	for(auto& sec : sectionTable) {
+	for(auto& sec : secTablePrint) {
 		Section* s = sec.second;
 		fprintf(outputText, "%s:\n", s->getName().c_str());
 		for(size_t i = 0 ; i < s->getSizeWithPools() ; i++) {
@@ -127,36 +137,75 @@ void Assembler::printTextFIle() {
 		}
 		fprintf(outputText, "%s rel data:\n", s->getName().c_str());
 		fprintf(outputText, "%10s %10s %10s %10s\n","offset", "symbol", "addend", "type");
-		for(Section::relData& r : s->getRelocationTable()) {
-			fprintf(outputText, "0x%08x %10d 0x%08x %10s\n", r.offset, r.symbolId, r.addend, "R_32");
+		for(relData& r : s->getRelocationTable()) {
+			fprintf(outputText, "0x%08x %10d 0x%08x %10s\n", r.OFFSET, r.SYMBOL_ID, r.ADDEND, "R_32");
 		}
 	}
 }
 
-extern FILE* yyin;
+void Assembler::printBinaryFile() {
+	std::map<uint32_t, Symbol*> symTablePrint;
+	std::map<uint32_t, Section*> secTablePrint;
+	for(auto& s : symbolTable)
+		symTablePrint.insert({s.second->getID(), s.second});
+	for(auto& s : sectionTable)
+		secTablePrint.insert({s.second->getId(), s.second});
+	
+	mainHeader* mh = new mainHeader();
+	mh->SYMBOL_TABLE_OFFSET = sizeof(mainHeader);
+	mh->SYMBOL_TABLE_LENGTH = symbolTable.size();
+	mh->SECTION_TABLE_OFFSET = mh->SYMBOL_TABLE_OFFSET + mh->SYMBOL_TABLE_LENGTH*sizeof(symTableEntry);
+	mh->SECTION_TABLE_LENGTH = sectionTable.size();
+	mh->STRING_POOL_OFFSET = 0; //TODO
+	mh->STRING_POOL_SIZE = stringPool.getStringPool().size();
 
-int32_t main(int32_t argc, char** argv) {
-	if(argc != 4) {
-		std::cerr<<"Incorrect number of arguments"<<std::endl \
-		<<"Usage: assembler -o <output file> <input file>"<<std::endl;
-		return -1;
+	std::vector<symTableEntry*> symTableOutput;
+	symTableEntry* symte = nullptr;
+	for(auto& s : symTablePrint) {
+		symte = new symTableEntry();
+		symte->SYMBOL_ID = s.second->getID();
+		symte->SYMBOL_NAME_OFFSET = stringPool.getStringIndex(s.second->getName());
+		symte->SYMBOL_VALUE = s.second->getValue();
+		symte->SECTION_ID = s.second->getSection();
+		symte->GLOBAL = s.second->isGlobal();
+		symte->SYMBOL_TYPE = s.second->getType();
+		symTableOutput.push_back(symte);
 	}
 
-	if(!Assembler::setInput(argv[3])) {
-		std::cerr<<"Input file not found"<<std::endl;
-		return -2;
+	std::vector<sectionTableEntry*> secTableOutput;
+	sectionTableEntry* secte = nullptr;
+	uint32_t sectionDataOffset = sizeof(mainHeader) + sizeof(symTableEntry)*symbolTable.size() + sizeof(sectionTableEntry)*sectionTable.size();
+	for(auto& s : secTablePrint) {
+		secte = new sectionTableEntry();
+		secte->SECTION_ID = s.second->getId();
+		secte->SECTION_NAME_OFFSET = stringPool.getStringIndex(s.second->getName());
+		secte->SECTION_BASE_ADDRESS = s.second->getBaseAddr();
+		secte->SECTION_DATA_OFFSET = sectionDataOffset;
+		secte->SECTION_SIZE = s.second->getSizeWithPools();
+		sectionDataOffset += secte->SECTION_SIZE;
+		secte->REL_DATA_TABLE_OFFSET = sectionDataOffset;
+		secte->REL_DATA_TABLE_LENGTH = s.second->getRelocationTable().size();
+		sectionDataOffset += secte->REL_DATA_TABLE_LENGTH * sizeof(relData);
+		secTableOutput.push_back(secte);
 	}
-	if(!Assembler::setOutput(argv[2])) {
-		std::cerr<<"Output file can not be generated"<<std::endl;
-		return -3;
-	}
+	mh->STRING_POOL_OFFSET = sectionDataOffset;
 
-	if(Assembler::firstPass()) {
-		std::cerr<<"First pass failed"<<std::endl;
-		return 1;
+	fwrite(mh, sizeof(mainHeader), 1, output);
+	for(symTableEntry* s : symTableOutput) {
+		fwrite(s, sizeof(symTableEntry), 1, output);
+		delete s;
 	}
-	if(Assembler::secondPass()) {
-		std::cerr<<"Second pass failed"<<std::endl;
+	for(sectionTableEntry* s : secTableOutput) {
+		fwrite(s, sizeof(sectionTableEntry), 1, output);
+		delete s;
 	}
-	return 0;
+	for(auto& s : secTablePrint) {
+		fwrite(s.second->getData(), sizeof(uint8_t), s.second->getSizeWithPools(), output);
+		fwrite(s.second->getRelocationTable().data(), sizeof(relData), s.second->getRelocationTable().size(), output);
+	}
+	fwrite(stringPool.getStringPool().data(), sizeof(uint8_t), stringPool.getStringPool().size(), output);
+
+	delete mh;
 }
+
+

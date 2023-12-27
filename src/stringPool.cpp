@@ -14,3 +14,7 @@ int32_t StringPool::getStringIndex(const std::string& str) {
 		return -1;
 	return stringIndex[str];
 }
+
+std::vector<uint8_t>& StringPool::getStringPool() {
+	return stringPool;
+}

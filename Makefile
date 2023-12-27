@@ -23,13 +23,13 @@ linker: $(LINKER)
 
 emulator: $(EMULATOR)
 
-$(ASSEMBLER): $(filter-out $(OBJDIR)/linker.o $(OBJDIR)/emulator.o, $(OBJ)) | $(OBJDIR)
+$(ASSEMBLER): $(filter-out $(OBJDIR)/linkerMain.o $(OBJDIR)/emulatorMain.o, $(OBJ)) | $(OBJDIR)
 	$(CPP) -o $@ $^
 
-$(LINKER): $(filter-out $(OBJDIR)/assembler.o $(OBJDIR)/emulator.o, $(OBJ)) | $(OBJDIR)
+$(LINKER): $(filter-out $(OBJDIR)/assemblerMain.o $(OBJDIR)/emulatorMain.o, $(OBJ)) | $(OBJDIR)
 	$(CPP) $(CPPFLAGS) -o $@ $^
 
-$(EMULATOR): $(filter-out $(OBJDIR)/assembler.o $(OBJDIR)/linker.o, $(OBJ)) | $(OBJDIR)
+$(EMULATOR): $(filter-out $(OBJDIR)/assemblerMain.o $(OBJDIR)/linkerMain.o, $(OBJ)) | $(OBJDIR)
 	$(CPP) $(CPPFLAGS) -o $@ $^
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(SRCDIR)/lexer.cpp $(SRCDIR)/parser.cpp | $(OBJDIR)

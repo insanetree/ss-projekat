@@ -7,12 +7,6 @@
 
 class Section {
 public:
-	struct relData {
-		uint32_t offset;
-		uint32_t symbolId;
-		uint32_t addend;
-		relData(uint32_t offset, uint32_t symbol, uint32_t addend) : offset(offset), symbolId(symbol), addend(addend) {}
-	};
 	Section(const std::string&);
 	int32_t getId() const;
 	uint32_t getSize() const;
