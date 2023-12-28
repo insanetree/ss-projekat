@@ -8,16 +8,17 @@ class Section;
 
 class ObjectFile {
 public:
-    ObjectFile(FILE*);
+	ObjectFile(FILE*);
 
 private:
-    void populateSymbolTable();
-    void populateSectionTable();
+	void populateSymbolTable();
+	void populateSectionTable();
 
-    FILE* file;
-    mainHeader mh;
-    std::map<std::string, Symbol*> localSymbolTable;
-    std::map<std::string, Section*> localSectionTable;
+	FILE* file;
+	mainHeader mh;
+	char* stringPool;
+	std::map<std::string, Symbol*> localSymbolTable;
+	std::map<std::string, Section*> localSectionTable;
 };
 
 #endif
