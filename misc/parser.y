@@ -130,6 +130,7 @@
 
   directive: TOKEN_DOT TOKEN_IDENT {
     std::string directive($2);
+    delete $2;
     if(directive == "end") {
       Section* currentSection = Assembler::getCurrentSection();
       if(currentSection)
@@ -139,17 +140,19 @@
     YYABORT;
   }
   | TOKEN_DOT TOKEN_IDENT argList {
-    Statement* newDirective = new Directive(std::string($2), $3, Assembler::getCurrentSection());
+    std::string directive($2);
+    Statement* newDirective = new Directive(directive, $3, Assembler::getCurrentSection());
     delete $2;
     if(!newDirective->isValid()){
+      std::cerr<<"directive "<<directive<<" is not valid"<<std::endl;
       delete newDirective;
       YYABORT;
     }
     if(newDirective->firstPass()) {
+      std::cerr<<"directive "<<directive<<" failed first pass"<<std::endl;
       delete newDirective;
       YYABORT;
-    }
-      
+    } 
   }
   ;
 

@@ -34,7 +34,7 @@ DOLLAR "$"
 PERCENT "%"
 
 HEXADECIMAL   0[Xx][0-9A-Fa-f]+
-DECIMAL [1-9][0-9]*
+DECIMAL (0|[1-9][0-9]*)
 IDENT [A-Za-z_][A-Za-z0-9_]*
 ENDLINE (\n|\r\n)+
 COM   "#"[^\n\r]*

@@ -23,6 +23,7 @@ int32_t main(int32_t argc, char** argv) {
 	}
 	if(Assembler::secondPass()) {
 		std::cerr<<"Second pass failed"<<std::endl;
+		return 2;
 	}
 	return 0;
 }

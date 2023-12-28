@@ -131,11 +131,11 @@ void Assembler::printTextFIle() {
 	}
 	for(auto& sec : secTablePrint) {
 		Section* s = sec.second;
-		fprintf(outputText, "%s:\n", s->getName().c_str());
+		fprintf(outputText, "\n%s:\n", s->getName().c_str());
 		for(size_t i = 0 ; i < s->getSizeWithPools() ; i++) {
 			fprintf(outputText, "%02x%c", s->getData()[i], (i%8 == 7)?('\n'):(' '));
 		}
-		fprintf(outputText, "%s rel data:\n", s->getName().c_str());
+		fprintf(outputText, "\n%s rel data:\n", s->getName().c_str());
 		fprintf(outputText, "%10s %10s %10s %10s\n","offset", "symbol", "addend", "type");
 		for(relData& r : s->getRelocationTable()) {
 			fprintf(outputText, "0x%08x %10d 0x%08x %10s\n", r.OFFSET, r.SYMBOL_ID, r.ADDEND, "R_32");
