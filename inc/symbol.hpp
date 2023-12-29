@@ -3,9 +3,11 @@
 
 #include "global.hpp"
 
+class Section;
+
 class Symbol{
 public:
-	Symbol(const std::string& name, uint32_t value, bool global, int32_t section, symbolType type);
+	Symbol(const std::string& name, uint32_t value, bool global, Section* section, symbolType type);
 	uint32_t getID() const;
 	std::string getName() const;
 	void setName(std::string name);
@@ -13,8 +15,9 @@ public:
 	void setValue(uint32_t value);
 	bool isGlobal() const;
 	void setGlobal(bool global);
-	int32_t getSection() const;
-	void setSection(int32_t section);
+	Section* getSection();
+	int32_t getSectionId();
+	void setSection(Section* section);
 	symbolType getType() const;
 	void setType(symbolType);
 protected:
@@ -23,7 +26,7 @@ private:
 	uint32_t id = next_id++;
 	std::string name;
 	uint32_t value;
-	int32_t section; //-1: UNKNOWN 0: COMMON else:sectionId
+	Section* section;
 	bool global;
 	symbolType type;
 };

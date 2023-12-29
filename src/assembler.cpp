@@ -40,7 +40,7 @@ int32_t Assembler::firstPass() {
 int32_t Assembler::secondPass() {
 	//add section names as symbols
 	for(auto& s : sectionTable) {
-		symbolTable.insert({s.first, new Symbol(s.first, 0, false, s.second->getId(), SECTION)});
+		symbolTable.insert({s.first, new Symbol(s.first, 0, false, s.second, SECTION)});
 	}
 	//TODO: resolve equ directives
 	for(Statement* s : statements) {
@@ -114,7 +114,7 @@ void Assembler::printTextFIle() {
 				sym.second->getID(),
 				sym.second->getName().c_str(),
 				sym.second->getValue(),
-				sym.second->getSection(),
+				sym.second->getSectionId(),
 				sym.second->isGlobal(),
 				(sym.second->getType() == NOTYPE)?("NOTYPE"):((sym.second->getType() == SECTION)?("SECTION"):("COMMON"))
 			);
@@ -166,7 +166,7 @@ void Assembler::printBinaryFile() {
 		symte->SYMBOL_ID = s.second->getID();
 		symte->SYMBOL_NAME_OFFSET = stringPool.getStringIndex(s.second->getName());
 		symte->SYMBOL_VALUE = s.second->getValue();
-		symte->SECTION_ID = s.second->getSection();
+		symte->SECTION_ID = s.second->getSectionId();
 		symte->GLOBAL = s.second->isGlobal();
 		symte->SYMBOL_TYPE = s.second->getType();
 		symTableOutput.push_back(symte);

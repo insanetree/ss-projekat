@@ -85,7 +85,7 @@
       std::cerr<<"label "<<label<<" already defined"<<std::endl;
       YYABORT;
     }
-    Symbol* newSymbol = new Symbol(label, Assembler::getLocationCounter(), false, Assembler::getCurrentSection()->getId(), NOTYPE);
+    Symbol* newSymbol = new Symbol(label, Assembler::getLocationCounter(), false, Assembler::getCurrentSection(), NOTYPE);
     Assembler::getSymbolTable().insert({label, newSymbol});
   }
   ;

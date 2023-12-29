@@ -1,8 +1,9 @@
 #include "symbol.hpp"
+#include "section.hpp"
 
 uint32_t Symbol::next_id = 1;
 
-Symbol::Symbol(const std::string& name, uint32_t value, bool global=false, int32_t section=-1, symbolType type=NOTYPE)
+Symbol::Symbol(const std::string& name, uint32_t value, bool global, Section* section, symbolType type)
 : name(name), value(value), section(section), global(global), type(type)
 {
 
@@ -36,11 +37,19 @@ void Symbol::setGlobal(bool global) {
 	this->global = global;
 }
 
-int32_t Symbol::getSection() const {
+Section* Symbol::getSection() {
 	return this->section;
 }
 
-void Symbol::setSection(int32_t section) {
+int32_t Symbol::getSectionId() {
+	if(type == COMMON)
+		return 0;
+	if(section)
+		return section->getId();
+	return -1;
+}
+
+void Symbol::setSection(Section* section) {
 	this->section = section;
 }
 

@@ -372,7 +372,7 @@ int32_t Instruction::secondPass() {
 				disp = 0;
 			break;
 			case REGISTER_SYMBOL_MEMORY:
-				if(Assembler::getSymbolTable()[arguments[0]->symbol]->getSection() != 0) {
+				if(Assembler::getSymbolTable()[arguments[0]->symbol]->getType() != COMMON) {
 					std::cerr<<"Value of symbol "<<arguments[0]->symbol<<" can't be determined"<<std::endl;
 					return -1;
 				}
@@ -424,7 +424,7 @@ int32_t Instruction::secondPass() {
 				disp = 0;
 			break;
 			case REGISTER_SYMBOL_MEMORY:
-				if(Assembler::getSymbolTable()[arguments[1]->symbol]->getSection() != 0) {
+				if(Assembler::getSymbolTable()[arguments[1]->symbol]->getType() != COMMON) {
 					std::cerr<<"Value of symbol "<<arguments[1]->symbol<<" can't be determined"<<std::endl;
 					return -1;
 				}
