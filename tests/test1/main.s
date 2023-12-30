@@ -17,4 +17,11 @@ wait:
 .section my_data
 my_counter:
 	.word 0
+.section my_test_data
+tri:
+.word 0x33333333
+cetiri:
+.word 0x44444444
+	ld tri, %r1
+	ld cetiri, %r1
 .end

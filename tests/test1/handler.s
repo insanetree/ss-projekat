@@ -30,4 +30,11 @@ finish:
 	pop %r2
 	pop %r1
 	iret
+.section my_test_data
+jedan:
+.word 0x11111111
+dva:
+.word 0x22222222
+	ld jedan, %r1
+	ld dva, %r1
 .end
