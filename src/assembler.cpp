@@ -103,7 +103,7 @@ void Assembler::printTextFIle() {
 	std::map<uint32_t, Symbol*> symTablePrint;
 	std::map<uint32_t, Section*> secTablePrint;
 	for(auto& s : symbolTable)
-		symTablePrint.insert({s.second->getID(), s.second});
+		symTablePrint.insert({s.second->getId(), s.second});
 	for(auto& s : sectionTable)
 		secTablePrint.insert({s.second->getId(), s.second});
 
@@ -111,7 +111,7 @@ void Assembler::printTextFIle() {
 	fprintf(outputText, "%10s %20s %10s %10s %10s %10s\n", "id", "name", "value", "section", "global", "type");
 	for(auto& sym: symTablePrint) {
 			fprintf(outputText, "%10d %20s 0x%08x %10d %10d %10s\n", 
-				sym.second->getID(),
+				sym.second->getId(),
 				sym.second->getName().c_str(),
 				sym.second->getValue(),
 				sym.second->getSectionId(),
@@ -147,7 +147,7 @@ void Assembler::printBinaryFile() {
 	std::map<uint32_t, Symbol*> symTablePrint;
 	std::map<uint32_t, Section*> secTablePrint;
 	for(auto& s : symbolTable)
-		symTablePrint.insert({s.second->getID(), s.second});
+		symTablePrint.insert({s.second->getId(), s.second});
 	for(auto& s : sectionTable)
 		secTablePrint.insert({s.second->getId(), s.second});
 	
@@ -163,7 +163,7 @@ void Assembler::printBinaryFile() {
 	symTableEntry* symte = nullptr;
 	for(auto& s : symTablePrint) {
 		symte = new symTableEntry();
-		symte->SYMBOL_ID = s.second->getID();
+		symte->SYMBOL_ID = s.second->getId();
 		symte->SYMBOL_NAME_OFFSET = stringPool.getStringIndex(s.second->getName());
 		symte->SYMBOL_VALUE = s.second->getValue();
 		symte->SECTION_ID = s.second->getSectionId();

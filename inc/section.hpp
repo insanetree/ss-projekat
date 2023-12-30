@@ -8,6 +8,7 @@
 class Section {
 public:
 	Section(const std::string&);
+	Section(const Section&);
 	int32_t getId() const;
 	uint32_t getSize() const;
 	uint32_t getSizeWithPools() const;
@@ -29,9 +30,11 @@ public:
 	std::vector<relData>& getRelocationTable();
 	uint8_t* getData();
 
+	static uint32_t getIdOffset();
 private:
 	static int32_t nextId;
-	int32_t id = nextId++;
+	static int32_t copyId;
+	int32_t id;
 	std::string name;
 	uint32_t base = 0;
 	uint32_t size = 0;

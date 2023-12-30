@@ -1,8 +1,18 @@
 #include "section.hpp"
 
 int32_t Section::nextId = 1;
+int32_t Section::copyId = 1;
 
-Section::Section(const std::string& name) : name(name) {}
+Section::Section(const std::string& name) : id(nextId++), name(name) {}
+
+Section::Section(const Section& section) {
+	id = copyId++;
+	name = section.name;
+	base = section.base;
+	size = section.size;
+	binaryData = section.binaryData;
+	relocationTable = section.relocationTable;
+}
 
 uint32_t Section::getSize() const {
 	return size;
@@ -96,9 +106,9 @@ void Section::putRelocationData(uint32_t offset, Symbol* symbol) {
 	if(symbol->getType() == COMMON)
 		return;
 	if(symbol->isGlobal()) {
-		relocationTable.push_back({offset, symbol->getID(), 0});
+		relocationTable.push_back({offset, symbol->getId(), 0});
 	} else {
-		relocationTable.push_back({offset, Assembler::getSymbolTable()[getName()]->getID(), symbol->getValue()});
+		relocationTable.push_back({offset, Assembler::getSymbolTable()[getName()]->getId(), symbol->getValue()});
 	}
 }
 
@@ -120,4 +130,8 @@ uint8_t* Section::getData() {
 
 std::vector<relData>& Section::getRelocationTable() {
 	return relocationTable;
+}
+
+uint32_t Section::getIdOffset() {
+	return nextId-1;
 }

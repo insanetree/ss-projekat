@@ -2,15 +2,30 @@
 #include "section.hpp"
 
 uint32_t Symbol::next_id = 1;
+uint32_t Symbol::copyId = 1;
 
 Symbol::Symbol(const std::string& name, uint32_t value, bool global, Section* section, symbolType type)
-: name(name), value(value), section(section), global(global), type(type)
+: id(next_id++), name(name), value(value), section(section), global(global), type(type)
 {
 
 }
 
-uint32_t Symbol::getID() const {
+Symbol::Symbol(const Symbol& symbol) {
+	oldId = symbol.id;
+	id = copyId++;
+	name = symbol.name;
+	value = symbol.value;
+	section = symbol.section;
+	global = symbol.global;
+	type = symbol.type;
+}
+
+uint32_t Symbol::getId() const {
 	return this->id;
+}
+
+uint32_t Symbol::getOldId() const {
+	return this->oldId;
 }
 
 std::string Symbol::getName() const {
@@ -59,4 +74,8 @@ symbolType Symbol::getType() const {
 
 void Symbol::setType(symbolType type) {
 	this->type = type;
+}
+
+uint32_t Symbol::getIdOffset() {
+	return next_id-1;
 }

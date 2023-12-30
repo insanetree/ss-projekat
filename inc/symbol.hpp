@@ -8,7 +8,9 @@ class Section;
 class Symbol{
 public:
 	Symbol(const std::string& name, uint32_t value, bool global, Section* section, symbolType type);
-	uint32_t getID() const;
+	Symbol(const Symbol&);
+	uint32_t getId() const;
+	uint32_t getOldId() const;
 	std::string getName() const;
 	void setName(std::string name);
 	uint32_t getValue() const;
@@ -20,10 +22,14 @@ public:
 	void setSection(Section* section);
 	symbolType getType() const;
 	void setType(symbolType);
+
+	static uint32_t getIdOffset();
 protected:
 private:
 	static uint32_t next_id;
-	uint32_t id = next_id++;
+	static uint32_t copyId;
+	uint32_t oldId;
+	uint32_t id;
 	std::string name;
 	uint32_t value;
 	Section* section;
