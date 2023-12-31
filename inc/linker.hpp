@@ -11,6 +11,8 @@ class Linker {
 public:
 	static void loadObjectFile(FILE*);
 	static int32_t linkObjectFiles();
+	static void writeRelocatableFile(const std::string&);
+	static void writeExecutableFile(const std::string&);
 	
 private:
 	static int32_t importSymbols();
