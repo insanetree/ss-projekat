@@ -37,7 +37,11 @@ void Symbol::setName(std::string name) {
 }
 
 uint32_t Symbol::getValue() const {
-	return this->value;
+	uint32_t sectionBase = 0;
+	if(section) {
+		sectionBase = section->getBaseAddr();
+	}
+	return this->value + sectionBase;
 }
 
 void Symbol::setValue(uint32_t value) {

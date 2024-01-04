@@ -257,7 +257,7 @@ int32_t Linker::placeSections(const std::map<std::string, uint32_t>& sectionPlac
 		}
 		nextBaseAddress = std::max(nextBaseAddress, sec1->getBaseAddr()+sec1->getSize());
 	}
-	for(auto& it : globalSectionTableByName) {
+	for(auto& it : globalSectionTableById) {
 		sec1 = it.second;
 		if(sec1->isBaseAddrSet()) continue;
 		sec1->setBaseAddr(nextBaseAddress);
