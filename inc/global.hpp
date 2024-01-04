@@ -1,6 +1,7 @@
 #ifndef GLOBAL_HPP
 #define GLOBAL_HPP
 
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <string>

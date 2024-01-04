@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
 			output = true;
 			outputFilename = argv[++i];
 		} else if(strncmp(argv[i], "-place=", 7)==0) {
-			std::string sectionName = strtok(argv[i]+1, "@");
+			std::string sectionName = strtok(argv[i]+7, "@");
 			uint32_t placement = strtoul(strtok(NULL, "@"), nullptr, 16);
 			if(sectionPlacement.find(sectionName)!=sectionPlacement.end())
 				return -4;
@@ -50,10 +50,15 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
+	if(Linker::placeSections(sectionPlacement)) {
+		std::cerr<<"Linker error"<<std::endl;
+		return 2;
+	}
+
 	if(relocatable) {
 		Linker::writeRelocatableFile(outputFilename);
 	} else if(hex) {
-		Linker::writeExecutableFile(outputFilename, sectionPlacement);
+		Linker::writeExecutableFile(outputFilename);
 	}
 	
 	return 0;

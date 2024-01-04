@@ -5,8 +5,10 @@
 #include "stringPool.hpp"
 
 std::vector<ObjectFile*> Linker::objectFiles;
-std::map<std::string, Symbol*> Linker::globalSymbolTable;
-std::map<std::string, Section*> Linker::globalSectionTable;
+std::map<std::string, Symbol*> Linker::globalSymbolTableByName;
+std::map<uint32_t, Symbol*> Linker::globalSymbolTableById;
+std::map<std::string, Section*> Linker::globalSectionTableByName;
+std::map<uint32_t, Section*> Linker::globalSectionTableById;
 std::map<uint32_t, uint32_t> Linker::relDataSymbolIdReplacementTable;
 std::map<Section*, Section*> Linker::symbolSectionPointerReplacementTable;
 std::map<uint32_t, uint32_t> Linker::relDataLocalSymbolAddendIncrement;
@@ -21,7 +23,7 @@ int32_t Linker::linkObjectFiles() {
 	if(!status)
 		status += importAndMergeSections();
 	if(!status) {
-		for(auto& sym : globalSymbolTable)
+		for(auto& sym : globalSymbolTableByName)
 			sym.second->setSection(symbolSectionPointerReplacementTable[sym.second->getSection()]);
 	}
 	return status;
@@ -34,12 +36,13 @@ int32_t Linker::importSymbols() {
 	for(ObjectFile* obj : objectFiles) {
 		for(auto& sym : obj->exportGlobalSymbols()) {
 			localSymbol = sym.second;
-			if(globalSymbolTable.find(localSymbol->getName()) != globalSymbolTable.end()) {
-				std::cerr<<"Multiple definitions of global symbol "<<sym.first<<std::endl;
+			if(globalSymbolTableByName.find(localSymbol->getName()) != globalSymbolTableByName.end()) {
+				std::cerr<<"Multiple definitions of global symbol "<<localSymbol->getName()<<std::endl;
 				status += 1;
 			}
 			copySymbol = new Symbol(*localSymbol);
-			globalSymbolTable.insert({localSymbol->getName(), copySymbol});
+			globalSymbolTableByName.insert({localSymbol->getName(), copySymbol});
+			globalSymbolTableById.insert({copySymbol->getId(), copySymbol});
 			relDataSymbolIdReplacementTable.insert({copySymbol->getOldId(), copySymbol->getId()});
 			relDataLocalSymbolAddendIncrement.insert({copySymbol->getOldId(), 0});
 		}
@@ -47,12 +50,12 @@ int32_t Linker::importSymbols() {
 	for(ObjectFile* obj : objectFiles) {
 		for(auto& sym : obj->getUnresolvedSymbols()) {
 			localSymbol = sym.second;
-			if(globalSymbolTable.find(localSymbol->getName()) == globalSymbolTable.end()) {
+			if(globalSymbolTableByName.find(localSymbol->getName()) == globalSymbolTableByName.end()) {
 				std::cerr<<"Unresolved symbol "<<localSymbol->getName()<<std::endl;
 				status += 1;
 				continue;
 			}
-			copySymbol = globalSymbolTable[localSymbol->getName()];
+			copySymbol = globalSymbolTableByName[localSymbol->getName()];
 			relDataSymbolIdReplacementTable.insert({localSymbol->getId(), copySymbol->getId()});
 			relDataLocalSymbolAddendIncrement.insert({localSymbol->getId(), 0});
 		}
@@ -69,27 +72,29 @@ int32_t Linker::importAndMergeSections() {
 	for(ObjectFile* obj : objectFiles) {
 		for(auto& sym : obj->exportSectionSymbols()) {
 			localSectionSymbol = sym.second;
-			if(globalSymbolTable.find(localSectionSymbol->getName()) == globalSymbolTable.end()) {
+			if(globalSymbolTableByName.find(localSectionSymbol->getName()) == globalSymbolTableByName.end()) {
 				newSectionSymbol = new Symbol(*localSectionSymbol);
-				globalSymbolTable.insert({localSectionSymbol->getName(), newSectionSymbol});
+				globalSymbolTableByName.insert({localSectionSymbol->getName(), newSectionSymbol});
+				globalSymbolTableById.insert({newSectionSymbol->getId(), newSectionSymbol});
 				relDataLocalSymbolAddendIncrement.insert({localSectionSymbol->getId(), 0});
 			} else {
-				newSectionSymbol = globalSymbolTable[localSectionSymbol->getName()];
-				relDataLocalSymbolAddendIncrement.insert({localSectionSymbol->getId(), globalSectionTable[localSectionSymbol->getName()]->getSize()});
+				newSectionSymbol = globalSymbolTableByName[localSectionSymbol->getName()];
+				relDataLocalSymbolAddendIncrement.insert({localSectionSymbol->getId(), globalSectionTableByName[localSectionSymbol->getName()]->getSize()});
 			}
 			relDataSymbolIdReplacementTable.insert({localSectionSymbol->getId(), newSectionSymbol->getId()});
 		}
 		for(auto& sec : obj->exportSections()) {
 			localSection = sec.second;
-			if(globalSectionTable.find(localSection->getName()) == globalSectionTable.end()) {
+			if(globalSectionTableByName.find(localSection->getName()) == globalSectionTableByName.end()) {
 				newSection = new Section(*localSection);
 				for(relData& rel : newSection->getRelocationTable()) {
 					rel.ADDEND += relDataLocalSymbolAddendIncrement[rel.SYMBOL_ID];
 					rel.SYMBOL_ID = relDataSymbolIdReplacementTable[rel.SYMBOL_ID];
 				}
-				globalSectionTable.insert({newSection->getName(), newSection});
+				globalSectionTableByName.insert({newSection->getName(), newSection});
+				globalSectionTableById.insert({newSection->getId(), newSection});
 			} else {
-				newSection = globalSectionTable[localSection->getName()];
+				newSection = globalSectionTableByName[localSection->getName()];
 				for(relData rel : localSection->getRelocationTable()) {
 					rel.OFFSET += newSection->getSize();
 					rel.ADDEND += relDataLocalSymbolAddendIncrement[rel.SYMBOL_ID];
@@ -105,7 +110,7 @@ int32_t Linker::importAndMergeSections() {
 	return status;
 }
 
-void Linker::writeExecutableFile(const std::string& filename, const std::map<std::string, uint32_t>& sectionPlacement) {
+bool Linker::writeExecutableFile(const std::string& filename) {
 
 }
 
@@ -117,13 +122,14 @@ void Linker::writeRelocatableFile(const std::string& filename) {
 
 	std::map<uint32_t, Symbol*> symTablePrint;
 	std::map<uint32_t, Section*> secTablePrint;
-	for(auto& s : globalSymbolTable) {
+	for(auto& s : globalSymbolTableByName) {
 		symTablePrint.insert({s.second->getId(), s.second});
 		stringPool.putString(s.first);
 	}
-	for(auto& s : globalSectionTable){
+	for(auto& s : globalSectionTableByName){
 		secTablePrint.insert({s.second->getId(), s.second});
 		stringPool.putString(s.first);
+		s.second->setBaseAddr(0);
 	}
 
 	fprintf(outputText, "SYMBOL_TABLE\n");
@@ -164,9 +170,9 @@ void Linker::writeRelocatableFile(const std::string& filename) {
 
 	mainHeader* mh = new mainHeader();
 	mh->SYMBOL_TABLE_OFFSET = sizeof(mainHeader);
-	mh->SYMBOL_TABLE_LENGTH = globalSymbolTable.size();
+	mh->SYMBOL_TABLE_LENGTH = globalSymbolTableByName.size();
 	mh->SECTION_TABLE_OFFSET = mh->SYMBOL_TABLE_OFFSET + mh->SYMBOL_TABLE_LENGTH*sizeof(symTableEntry);
-	mh->SECTION_TABLE_LENGTH = globalSectionTable.size();
+	mh->SECTION_TABLE_LENGTH = globalSectionTableByName.size();
 	mh->STRING_POOL_OFFSET = 0; //TODO
 	mh->STRING_POOL_SIZE = stringPool.getStringPool().size();
 
@@ -185,7 +191,7 @@ void Linker::writeRelocatableFile(const std::string& filename) {
 
 	std::vector<sectionTableEntry*> secTableOutput;
 	sectionTableEntry* secte = nullptr;
-	uint32_t sectionDataOffset = sizeof(mainHeader) + sizeof(symTableEntry)*globalSymbolTable.size() + sizeof(sectionTableEntry)*globalSectionTable.size();
+	uint32_t sectionDataOffset = sizeof(mainHeader) + sizeof(symTableEntry)*globalSymbolTableByName.size() + sizeof(sectionTableEntry)*globalSectionTableByName.size();
 	for(auto& s : secTablePrint) {
 		secte = new sectionTableEntry();
 		secte->SECTION_ID = s.second->getId();
@@ -220,6 +226,46 @@ void Linker::writeRelocatableFile(const std::string& filename) {
 	fclose(output);
 }
 
-bool Linker::placeSection(Section* section, uint32_t address) {
-	uint32_t sectionSize = section->getSize();
+int32_t Linker::placeSections(const std::map<std::string, uint32_t>& sectionPlacement) {
+	int32_t status = 0;
+	uint32_t nextBaseAddress = 0;
+	Section* sec1;
+	Section* sec2;
+	for(auto& it1 : sectionPlacement) {
+		if(globalSectionTableByName.find(it1.first)==globalSectionTableByName.end()) {
+			std::cerr<<"Placing section "<<it1.first<<" which does not exist"<<std::endl;
+			status++;
+			continue;
+		}
+		sec1 = globalSectionTableByName[it1.first];
+		sec1->setBaseAddr(it1.second);
+		for(auto& it2 : sectionPlacement) {
+			if(it1.first == it2.first)
+				break;
+			if(globalSectionTableByName.find(it2.first)==globalSectionTableByName.end())
+				continue;
+			sec2 = globalSectionTableByName[it2.first];
+			if(
+				sec1->getBaseAddr() == sec2->getBaseAddr()
+				|| (sec1->getBaseAddr() < sec2->getBaseAddr() && sec1->getBaseAddr()+sec1->getSize() > sec2->getBaseAddr())
+				|| (sec1->getBaseAddr() > sec2->getBaseAddr() && sec1->getBaseAddr() < sec2->getBaseAddr()+sec2->getSize())
+				) {
+				std::cerr<<"Sections "<<it2.first<<" and "<<it1.first<<" overlap"<<std::endl;
+				status++;
+				break;
+			}
+		}
+		nextBaseAddress = std::max(nextBaseAddress, sec1->getBaseAddr()+sec1->getSize());
+	}
+	for(auto& it : globalSectionTableByName) {
+		sec1 = it.second;
+		if(sec1->isBaseAddrSet()) continue;
+		sec1->setBaseAddr(nextBaseAddress);
+		nextBaseAddress += sec1->getSize();
+		if(nextBaseAddress < sec1->getBaseAddr() || nextBaseAddress >= 0xffffff00) {
+			std::cerr<<"Out of available memory for section "<<sec1->getName()<<std::endl;
+			status++;
+		}
+	}
+	return status;
 }

@@ -16,6 +16,7 @@ public:
 	void setSize(uint32_t);
 	uint32_t getBaseAddr() const;
 	void setBaseAddr(uint32_t);
+	bool isBaseAddrSet() const;
 	void addStatement(Statement*);
 	void addSymbolToPool(std::string&, uint32_t = 0);
 	void addLiteralToPool(uint32_t, uint32_t = 0);
@@ -37,6 +38,7 @@ private:
 	int32_t id;
 	std::string name;
 	uint32_t base = 0;
+	bool baseSet = false;
 	uint32_t size = 0;
 	uint32_t locationCounter = 0;
 	std::vector<Statement*> statements;

@@ -118,6 +118,11 @@ uint32_t Section::getBaseAddr() const {
 
 void Section::setBaseAddr(uint32_t base) {
 	this->base = base;
+	baseSet = true;
+}
+
+bool Section::isBaseAddrSet() const {
+	return baseSet;
 }
 
 uint32_t Section::getSizeWithPools() const {
