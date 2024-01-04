@@ -12,7 +12,7 @@ public:
 	static void loadObjectFile(FILE*);
 	static int32_t linkObjectFiles();
 	static void writeRelocatableFile(const std::string&);
-	static void writeExecutableFile(const std::string&);
+	static void writeExecutableFile(const std::string&, const std::map<std::string, uint32_t>&);
 	
 private:
 	static int32_t importSymbols();
@@ -25,6 +25,8 @@ private:
 	static std::map<uint32_t, uint32_t> relDataSymbolIdReplacementTable;
 	static std::map<uint32_t, uint32_t> relDataLocalSymbolAddendIncrement;
 	static std::map<Section*, Section*> symbolSectionPointerReplacementTable;
+
+	static bool placeSection(Section*, uint32_t=0);
 };
 
 #endif

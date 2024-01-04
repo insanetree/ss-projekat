@@ -26,9 +26,9 @@ void ObjectFile::populateSymbolTable() {
 			sym->setSection(localSectionTableById[ste.SECTION_ID+sectionIdOffset]);
 		localSymbolTableByName.insert({sym->getName(), sym});
 		localSymbolTableById.insert({sym->getId(), sym});
-		if(sym->isGlobal() && sym->getSection() != nullptr) exportedSymbols.insert({sym->getName(), sym});
+		if(sym->isGlobal() && sym->getSection() != nullptr) exportedSymbols.insert({sym->getId(), sym});
 		if(sym->isGlobal() && sym->getSectionId() == -1) importedSymbols.insert({sym->getName(), sym});
-		if(sym->getType() == SECTION) sectionSymbols.insert({sym->getName(), sym});
+		if(sym->getType() == SECTION) sectionSymbols.insert({sym->getId(), sym});
 	}
 }
 
@@ -58,15 +58,15 @@ void ObjectFile::populateSectionTable() {
 	}
 }
 
-std::map<std::string, Symbol*>& ObjectFile::exportGlobalSymbols() {
+std::map<uint32_t, Symbol*>& ObjectFile::exportGlobalSymbols() {
 	return exportedSymbols;
 }
 
-std::map<std::string, Section*>& ObjectFile::exportSections() {
-	return localSectionTableByName;
+std::map<uint32_t, Section*>& ObjectFile::exportSections() {
+	return localSectionTableById;
 }
 
-std::map<std::string, Symbol*>& ObjectFile::exportSectionSymbols() {
+std::map<uint32_t, Symbol*>& ObjectFile::exportSectionSymbols() {
 	return sectionSymbols;
 }
 

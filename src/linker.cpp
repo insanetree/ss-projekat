@@ -34,12 +34,12 @@ int32_t Linker::importSymbols() {
 	for(ObjectFile* obj : objectFiles) {
 		for(auto& sym : obj->exportGlobalSymbols()) {
 			localSymbol = sym.second;
-			if(globalSymbolTable.find(sym.first) != globalSymbolTable.end()) {
+			if(globalSymbolTable.find(localSymbol->getName()) != globalSymbolTable.end()) {
 				std::cerr<<"Multiple definitions of global symbol "<<sym.first<<std::endl;
 				status += 1;
 			}
 			copySymbol = new Symbol(*localSymbol);
-			globalSymbolTable.insert({sym.first, copySymbol});
+			globalSymbolTable.insert({localSymbol->getName(), copySymbol});
 			relDataSymbolIdReplacementTable.insert({copySymbol->getOldId(), copySymbol->getId()});
 			relDataLocalSymbolAddendIncrement.insert({copySymbol->getOldId(), 0});
 		}
@@ -47,12 +47,12 @@ int32_t Linker::importSymbols() {
 	for(ObjectFile* obj : objectFiles) {
 		for(auto& sym : obj->getUnresolvedSymbols()) {
 			localSymbol = sym.second;
-			if(globalSymbolTable.find(sym.first) == globalSymbolTable.end()) {
-				std::cerr<<"Unresolved symbol "<<sym.first<<std::endl;
+			if(globalSymbolTable.find(localSymbol->getName()) == globalSymbolTable.end()) {
+				std::cerr<<"Unresolved symbol "<<localSymbol->getName()<<std::endl;
 				status += 1;
 				continue;
 			}
-			copySymbol = globalSymbolTable[sym.first];
+			copySymbol = globalSymbolTable[localSymbol->getName()];
 			relDataSymbolIdReplacementTable.insert({localSymbol->getId(), copySymbol->getId()});
 			relDataLocalSymbolAddendIncrement.insert({localSymbol->getId(), 0});
 		}
@@ -69,19 +69,19 @@ int32_t Linker::importAndMergeSections() {
 	for(ObjectFile* obj : objectFiles) {
 		for(auto& sym : obj->exportSectionSymbols()) {
 			localSectionSymbol = sym.second;
-			if(globalSymbolTable.find(sym.first) == globalSymbolTable.end()) {
+			if(globalSymbolTable.find(localSectionSymbol->getName()) == globalSymbolTable.end()) {
 				newSectionSymbol = new Symbol(*localSectionSymbol);
-				globalSymbolTable.insert({sym.first, newSectionSymbol});
+				globalSymbolTable.insert({localSectionSymbol->getName(), newSectionSymbol});
 				relDataLocalSymbolAddendIncrement.insert({localSectionSymbol->getId(), 0});
 			} else {
-				newSectionSymbol = globalSymbolTable[sym.first];
-				relDataLocalSymbolAddendIncrement.insert({localSectionSymbol->getId(), globalSectionTable[sym.first]->getSize()});
+				newSectionSymbol = globalSymbolTable[localSectionSymbol->getName()];
+				relDataLocalSymbolAddendIncrement.insert({localSectionSymbol->getId(), globalSectionTable[localSectionSymbol->getName()]->getSize()});
 			}
 			relDataSymbolIdReplacementTable.insert({localSectionSymbol->getId(), newSectionSymbol->getId()});
 		}
 		for(auto& sec : obj->exportSections()) {
 			localSection = sec.second;
-			if(globalSectionTable.find(sec.first) == globalSectionTable.end()) {
+			if(globalSectionTable.find(localSection->getName()) == globalSectionTable.end()) {
 				newSection = new Section(*localSection);
 				for(relData& rel : newSection->getRelocationTable()) {
 					rel.ADDEND += relDataLocalSymbolAddendIncrement[rel.SYMBOL_ID];
@@ -89,7 +89,7 @@ int32_t Linker::importAndMergeSections() {
 				}
 				globalSectionTable.insert({newSection->getName(), newSection});
 			} else {
-				newSection = globalSectionTable[sec.first];
+				newSection = globalSectionTable[localSection->getName()];
 				for(relData rel : localSection->getRelocationTable()) {
 					rel.OFFSET += newSection->getSize();
 					rel.ADDEND += relDataLocalSymbolAddendIncrement[rel.SYMBOL_ID];
@@ -105,7 +105,7 @@ int32_t Linker::importAndMergeSections() {
 	return status;
 }
 
-void Linker::writeExecutableFile(const std::string& filename) {
+void Linker::writeExecutableFile(const std::string& filename, const std::map<std::string, uint32_t>& sectionPlacement) {
 
 }
 
@@ -218,4 +218,8 @@ void Linker::writeRelocatableFile(const std::string& filename) {
 
 	delete mh;
 	fclose(output);
+}
+
+bool Linker::placeSection(Section* section, uint32_t address) {
+	uint32_t sectionSize = section->getSize();
 }
