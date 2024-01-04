@@ -11,6 +11,8 @@ ObjectFile::ObjectFile(FILE* file) : file(file) {
 	sectionIdOffset = Section::getIdOffset();
 	populateSectionTable();
 	populateSymbolTable();
+	fclose(file);
+	file = nullptr;
 }
 
 void ObjectFile::populateSymbolTable() {
