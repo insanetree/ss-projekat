@@ -111,7 +111,59 @@ int32_t Linker::importAndMergeSections() {
 }
 
 bool Linker::writeExecutableFile(const std::string& filename) {
+	std::map<uint32_t, Section*> sectionByAddress;
+	for(auto& s : globalSectionTableById) {
+		sectionByAddress.insert({s.second->getBaseAddr(), s.second});
+	}
+	FILE* outputText;
+	FILE* outputBinary;
+	outputText = fopen((filename+".txt").c_str(), "w");
+	outputBinary = fopen(filename.c_str(), "wb");
+	if(!outputBinary || !outputText)
+		return false;
+	
+	constexpr uint32_t impossibleAddress = 0xffffffff;
+	uint8_t* sectionData;
+	uint32_t loadAddress;
+	uint32_t printAddressNext = impossibleAddress, printAddressPrev;
+	uint32_t sectionSize;
+	Section* section;
+	Symbol* symbol;
+	for(auto& s : sectionByAddress) {
+		section = s.second;
+		loadAddress = s.first;
+		sectionSize = section->getSize();
+		sectionData = new uint8_t[section->getSize()];
+		memcpy(sectionData, section->getData(), section->getSize());
+		for(relData& r : section->getRelocationTable()) {
+			symbol = globalSymbolTableById[r.SYMBOL_ID];
+			*((uint32_t*)(sectionData+r.OFFSET)) = (symbol->getValue() + r.ADDEND);
+		}
+		fwrite(&loadAddress, sizeof(uint32_t), 1, outputBinary);
+		fwrite(&sectionSize, sizeof(uint32_t), 1, outputBinary);
+		fwrite(sectionData, sizeof(uint8_t), section->getSize(), outputBinary);
 
+
+		printAddressPrev = printAddressNext;
+		printAddressNext = loadAddress;
+		for(uint32_t i = 0 ; i < section->getSize() ; i++) {
+			if(printAddressNext%8 == 0 || printAddressNext != printAddressPrev+1 || printAddressNext < printAddressPrev) {
+				if(printAddressPrev != impossibleAddress)
+					fprintf(outputText, "\n");
+				fprintf(outputText, "%08x:", printAddressNext);
+			}
+			fprintf(outputText, " %02x", sectionData[i]);
+			printAddressPrev = printAddressNext;
+			printAddressNext++;
+		}
+
+		delete sectionData;
+	}
+	fwrite(&impossibleAddress, sizeof(uint32_t), 1, outputBinary);
+	fwrite(&impossibleAddress, sizeof(uint32_t), 1, outputBinary);
+	fclose(outputBinary);
+	fclose(outputText);
+	return true;
 }
 
 void Linker::writeRelocatableFile(const std::string& filename) {
