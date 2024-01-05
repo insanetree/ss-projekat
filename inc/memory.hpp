@@ -6,8 +6,10 @@
 class Memory {
 public:
 	Memory();
-	uint8_t get(uint32_t);
-	void put(uint32_t, uint8_t);
+	uint8_t get8(uint32_t);
+	void put8(uint32_t, uint8_t);
+	uint32_t get32(uint32_t);
+	void put32(uint32_t, uint32_t);
 private:
 	struct Page {
 		std::array<uint8_t, 0x100> frame;
@@ -26,7 +28,7 @@ private:
 		PMT0();
 	};
 	PMT0* pmt0;
-	std::mutex monitorMutex;
+	std::recursive_mutex monitorMutex;
 	void allocatePage(uint32_t);
 };
 
