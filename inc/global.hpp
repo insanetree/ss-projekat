@@ -2,12 +2,14 @@
 #define GLOBAL_HPP
 
 #include <algorithm>
+#include <array>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <cstring>
 #include <unordered_map>
 #include <map>
+#include <mutex>
 #include <vector>
 #include <set>
 #include <list>
