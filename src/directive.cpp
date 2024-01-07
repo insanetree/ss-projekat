@@ -132,6 +132,7 @@ int32_t Directive::firstPass() {
 		if(!Assembler::getCurrentSection()) {
 			newSection = new Section(sectionName);
 			Assembler::getSectionTable().insert({sectionName, newSection});
+			Assembler::getSymbolTable().insert({sectionName, new Symbol(sectionName, 0, false, newSection, SECTION)});
 			Assembler::setCurrentSection(newSection);
 			Assembler::setLocationCounter(0);
 			return 0;
@@ -144,6 +145,7 @@ int32_t Directive::firstPass() {
 		if(sectionTableIter == Assembler::getSectionTable().end()) {
 			newSection = new Section(sectionName);
 			Assembler::getSectionTable().insert({sectionName, newSection});
+			Assembler::getSymbolTable().insert({sectionName, new Symbol(sectionName, 0, false, newSection, SECTION)});
 		} else {
 			newSection = sectionTableIter->second;
 		}

@@ -39,9 +39,9 @@ int32_t Assembler::firstPass() {
 
 int32_t Assembler::secondPass() {
 	//add section names as symbols
-	for(auto& s : sectionTable) {
+	/* for(auto& s : sectionTable) {
 		symbolTable.insert({s.first, new Symbol(s.first, 0, false, s.second, SECTION)});
-	}
+	} */
 	//TODO: resolve equ directives
 	for(Statement* s : statements) {
 		if(s->secondPass()) {
