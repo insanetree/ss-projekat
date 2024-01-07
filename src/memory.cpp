@@ -63,7 +63,11 @@ void Memory::put8(uint32_t address, uint8_t value) {
 
 uint32_t Memory::get32(uint32_t address) {
 	std::unique_lock<std::recursive_mutex> lock(monitorMutex);
-	return (get8(address+3)<<24) | (get8(address+2)<<16) | (get8(address+1)<<8) | (get8(address));
+	uint32_t ret;
+	ret = (get8(address+3)<<24) | (get8(address+2)<<16) | (get8(address+1)<<8) | (get8(address));
+	if(address == TERM_OUT)
+		put32(TERM_OUT, 0);
+	return ret;
 }
 
 void Memory::put32(uint32_t address, uint32_t value) {

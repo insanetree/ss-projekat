@@ -3,6 +3,10 @@
 
 #include "global.hpp"
 
+const uint32_t TERM_OUT = 0xffffff00;
+const uint32_t TERM_IN  = 0xffffff04;
+const uint32_t TIM_CFG  = 0xffffff10;
+
 class Memory {
 public:
 	Memory();
