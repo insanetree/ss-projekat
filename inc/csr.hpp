@@ -1,6 +1,10 @@
 #ifndef CSR_HPP
 #define CSR_HPP
 
+#define STATUS 0
+#define HANDLER 1
+#define CAUSE 2
+
 #include "global.hpp"
 
 class Csr {

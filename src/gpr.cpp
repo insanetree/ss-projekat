@@ -4,15 +4,23 @@ Gpr::Gpr() {
 	registers.fill(0);
 }
 
-uint32_t& Gpr::operator[](uint32_t index) {
+void Gpr::set(uint32_t index, uint32_t value) {
 	if(index > 15)
 		throw std::out_of_range("Invalid register used");
 	if(index == 0)
 		throw std::out_of_range("Register 0 can not be used as lvalue");
-	return registers[index-1];
+	registers[index-1] = value;
 }
 
-uint32_t Gpr::operator[](uint32_t index) const {
+void Gpr::inc(uint32_t index, uint32_t inc) {
+	if(index > 15)
+		throw std::out_of_range("Invalid register used");
+	if(index == 0)
+		throw std::out_of_range("Register 0 can not be used as lvalue");
+	registers[index-1] += inc;
+}
+
+int32_t Gpr::get(uint32_t index) const {
 	if(index > 15)
 		throw std::out_of_range("Invalid register used");
 	if(index == 0)
