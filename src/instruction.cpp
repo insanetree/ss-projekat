@@ -139,16 +139,19 @@ int32_t Instruction::secondPass() {
 	}
 	else if (keyword == "iret") {
 		op = 0b1001;
-		mod = 0b0011;
-		regA = 15;
+		mod = 0b0110;
+		regA = 0;
 		regB = 14;
 		regC = 0;
 		disp = 4;
 		write = (op<<28) | (mod<<24) | (regA<<20) | (regB<<16) | (regC<<12) | (disp & 0xfff);
 		section->putDataReverse(&write, sizeof(uint32_t));
 		section->incrementLocationCounter(4);
-		mod = 0b0111;
-		regA = 0;
+		mod = 0b0011;
+		regA = 15;
+		regB = 14;
+		regC = 0;
+		disp = 8;
 	}
 	else if (keyword == "call") {
 		op = 0b0010;
