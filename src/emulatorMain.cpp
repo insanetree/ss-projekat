@@ -1,3 +1,5 @@
+#include <thread>
+
 #include "global.hpp"
 #include "emulator.hpp"
 
@@ -13,7 +15,15 @@ int main(int argc, char** argv) {
 	}
 	Emulator::initEmulator(f);
 	fclose(f);
+	
+	std::thread terminal(&Emulator::terminalRoutine);
+	std::thread timer(&Emulator::timerRoutine);
+
 	Emulator::cpuRoutine();
+
+	terminal.join();
+	timer.join();
+
 	Emulator::printRegisters();
 	return 0;
 }

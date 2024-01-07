@@ -1,10 +1,10 @@
 #ifndef GPR_HPP
 #define GPR_HPP
 
-#define SP 14
-#define PC 15
-
 #include "global.hpp"
+
+const uint32_t SP = 14;
+const uint32_t PC = 15;
 
 class Gpr {
 public:

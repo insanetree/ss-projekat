@@ -1,6 +1,6 @@
 #include "csr.hpp"
 
-Csr::Csr() : status(~0x3), handler(0xffffffff), cause(0) {}
+Csr::Csr() : status(~0x7), handler(0xffffffff), cause(0) {}
 
 std::atomic<uint32_t>& Csr::operator[] (uint32_t index) {
 	switch(index) {

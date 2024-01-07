@@ -1,11 +1,11 @@
 #ifndef CSR_HPP
 #define CSR_HPP
 
-#define STATUS 0
-#define HANDLER 1
-#define CAUSE 2
-
 #include "global.hpp"
+
+const uint32_t STATUS  = 0;
+const uint32_t HANDLER = 1;
+const uint32_t CAUSE   = 2;
 
 class Csr {
 public:

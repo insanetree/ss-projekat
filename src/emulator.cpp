@@ -1,4 +1,7 @@
 #include "emulator.hpp"
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 bool Emulator::run = true;
 Memory Emulator::memory;
@@ -204,7 +207,26 @@ void Emulator::interrupt() {
 }
 
 void Emulator::terminalRoutine() {
+	termios oldSettings, newSettings;
+	uint8_t c;
+	tcgetattr(STDIN_FILENO, &oldSettings);
+	newSettings = oldSettings;
+	newSettings.c_lflag &= ~(ICANON | ECHO);
+	tcsetattr(STDIN_FILENO, TCSANOW, &newSettings);
+	int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+	while(run) {
+		if((c = memory.get32(TERM_OUT)) != 0){
+			write(STDOUT_FILENO, &c, 1);
+		}
 
+		if(read(STDIN_FILENO, &c, 1) > 0 && c != '\n') {
+			memory.put32(TERM_IN, c);
+			terminalInterrupt = true;
+		}
+	}
+	fcntl(STDIN_FILENO, F_SETFL, flags);
+	tcsetattr(STDIN_FILENO, TCSANOW, &oldSettings);
 }
 
 void Emulator::timerRoutine() {
@@ -212,7 +234,7 @@ void Emulator::timerRoutine() {
 }
 
 void Emulator::printRegisters() {
-	printf("-----------------------------------------------------------------\n");
+	printf("\n-----------------------------------------------------------------\n");
 	printf("Emulated processor executed halt instruction");
 	for(uint32_t i = 0 ; i < 16 ; i++) {
 		if(i%4)

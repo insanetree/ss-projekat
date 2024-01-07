@@ -48,6 +48,9 @@ $(OBJDIR):
 
 clean:
 	rm -rf build
+	rm -f *.txt
+	rm -f *.o
+	rm -f *.hex
 	rm -f $(SRCDIR)/lexer.cpp
 	rm -f $(SRCDIR)/parser.cpp
 	rm -f $(INCDIR)/lexer.hpp
