@@ -42,7 +42,7 @@ void Emulator::cpuRoutine() {
 		try {
 			instructionExecute();
 		} catch (std::exception& e) {
-			csr[2] = 1;
+			invalidInstructionInterrupt = true;
 		}
 		interrupt();
 	}
@@ -180,11 +180,11 @@ void Emulator::interrupt() {
 		interrupt = true;
 		invalidInstructionInterrupt = false;
 		csr[CAUSE] = 1;
-	} else if (timerInterrupt && (status & 0b101 == 0b101)) {
+	} else if (timerInterrupt && ((status & 0b101) == 0b101)) {
 		interrupt = true;
 		timerInterrupt = false;
 		csr[CAUSE] = 2;
-	} else if (terminalInterrupt && (status & 0b110 == 0b110)) {
+	} else if (terminalInterrupt && ((status & 0b110) == 0b110)) {
 		interrupt = true;
 		terminalInterrupt = false;
 		csr[CAUSE] = 3;
