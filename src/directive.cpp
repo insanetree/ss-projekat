@@ -124,7 +124,8 @@ int32_t Directive::firstPass() {
 		Assembler::insertStatement(this);
 	} 
 	else if(keyword == "extern") {
-		Assembler::getSymbolTable().insert({arguments[0]->symbol, new Symbol(arguments[0]->symbol, 0, true, nullptr, NOTYPE)});
+		for(uint32_t i = 0 ; i < arguments.size() ; i++)
+			Assembler::getSymbolTable().insert({arguments[i]->symbol, new Symbol(arguments[i]->symbol, 0, true, nullptr, NOTYPE)});
 	} 
 	else if(keyword == "section") {
 		std::string sectionName(arguments[0]->symbol);

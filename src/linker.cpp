@@ -101,6 +101,10 @@ int32_t Linker::importAndMergeSections() {
 					rel.SYMBOL_ID = relDataSymbolIdReplacementTable[rel.SYMBOL_ID];
 					newSection->getRelocationTable().push_back(rel);
 				}
+				for(auto& sym : obj->exportGlobalSymbols()) { //update global symbols
+					Symbol* globalSymbol = globalSymbolTableByName[sym.second->getName()];
+					globalSymbol->setValue(globalSymbol->getValue() + newSection->getSize());
+				}
 				newSection->putData(localSection->getData(), localSection->getSize());
 				newSection->setSize(newSection->getSize() + localSection->getSize());
 			}

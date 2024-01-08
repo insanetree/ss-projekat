@@ -65,12 +65,12 @@ void Emulator::instructionFetch() {
 			softwareInterrupt = true;
 			break;
 		case 0x20: //call
-			gpr.inc(SP, 4);
+			gpr.inc(SP, -4);
 			memory.put32(gpr.get(SP), gpr.get(PC));
 			gpr.set(PC, gpr.get(ir.regA) + gpr.get(ir.regB) + ir.disp);
 			break;
 		case 0x21: //call
-			gpr.inc(SP, 4);
+			gpr.inc(SP, -4);
 			memory.put32(gpr.get(SP), gpr.get(PC));
 			gpr.set(PC, memory.get32(gpr.get(ir.regA) + gpr.get(ir.regB) + ir.disp));
 			break;
@@ -153,7 +153,7 @@ void Emulator::instructionFetch() {
 		case 0x92:
 			gpr.set(ir.regA, memory.get32(gpr.get(ir.regB) + gpr.get(ir.regC) + ir.disp));
 			break;
-		case 0x93:
+		case 0x93: //pop, ret
 			gpr.set(ir.regA, memory.get32(gpr.get(ir.regB)));
 			gpr.inc(ir.regB, ir.disp);
 			break;
