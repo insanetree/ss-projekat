@@ -2,6 +2,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <thread>
 
 bool Emulator::run = true;
 Memory Emulator::memory;
@@ -197,9 +198,9 @@ void Emulator::interrupt() {
 		csr[CAUSE] = 4;
 	}
 	if(interrupt && (csr[HANDLER] != 0xffffffff)) {
-		gpr.inc(SP, 4);
+		gpr.inc(SP, -4);
 		memory.put32(gpr.get(SP), csr[STATUS]);
-		gpr.inc(SP, 4);
+		gpr.inc(SP, -4);
 		memory.put32(gpr.get(SP), gpr.get(PC));
 		csr[STATUS] &= (~0x1);
 		gpr.set(PC, csr[HANDLER]);
@@ -211,7 +212,7 @@ void Emulator::terminalRoutine() {
 	uint8_t c;
 	tcgetattr(STDIN_FILENO, &oldSettings);
 	newSettings = oldSettings;
-	newSettings.c_lflag &= ~(ICANON | ECHO);
+	newSettings.c_lflag &= ~(ICANON | ECHO );
 	tcsetattr(STDIN_FILENO, TCSANOW, &newSettings);
 	int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
     fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
@@ -220,9 +221,10 @@ void Emulator::terminalRoutine() {
 			write(STDOUT_FILENO, &c, 1);
 		}
 
-		if(read(STDIN_FILENO, &c, 1) > 0 && c != '\n') {
+		if(read(STDIN_FILENO, &c, 1) > 0) {
 			memory.put32(TERM_IN, c);
 			terminalInterrupt = true;
+			std::this_thread::yield();
 		}
 	}
 	fcntl(STDIN_FILENO, F_SETFL, flags);
