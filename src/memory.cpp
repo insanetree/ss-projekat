@@ -18,6 +18,7 @@ Memory::Page::Page() {
 
 Memory::Memory() {
 	pmt0 = new PMT0();
+	termOutSet = false;
 }
 
 void Memory::allocatePage(uint32_t address) {
@@ -65,8 +66,12 @@ uint32_t Memory::get32(uint32_t address) {
 	std::unique_lock<std::recursive_mutex> lock(monitorMutex);
 	uint32_t ret;
 	ret = (get8(address+3)<<24) | (get8(address+2)<<16) | (get8(address+1)<<8) | (get8(address));
-	if(address == TERM_OUT)
+	if(address == TERM_OUT && termOutSet) {
+		termOutSet = false;
 		put32(TERM_OUT, 0);
+		termOutRead.notify_one();
+	}
+		
 	return ret;
 }
 
@@ -77,6 +82,10 @@ void Memory::put32(uint32_t address, uint32_t value) {
 	value1 = (value & 0x0000ff00) >> 8;
 	value2 = (value & 0x00ff0000) >> 16;
 	value3 = (value & 0xff000000) >> 24;
+	if(termOutSet && address == TERM_OUT)
+		termOutRead.wait(lock);
+	if(address == TERM_OUT && value != 0)
+		termOutSet = true;
 	put8(address, value0);
 	put8(address+1, value1);
 	put8(address+2, value2);

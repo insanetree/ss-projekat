@@ -33,6 +33,8 @@ private:
 	};
 	PMT0* pmt0;
 	std::recursive_mutex monitorMutex;
+	std::condition_variable_any termOutRead;
+	bool termOutSet;
 	void allocatePage(uint32_t);
 };
 
