@@ -1,4 +1,5 @@
 build/*
+bin/*
 .idea/*
 .vscode/*
 inc/lexer.hpp

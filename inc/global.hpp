@@ -31,7 +31,8 @@ typedef enum {
 	REGISTER_MEMORY,
 	REGISTER_LITERAL_MEMORY,
 	REGISTER_SYMBOL_MEMORY,
-	REGISTER_VALUE_CSR
+	REGISTER_VALUE_CSR,
+	ASCII
 }argumentType;
 
 typedef enum : uint32_t {
@@ -49,6 +50,7 @@ struct arg {
 	int32_t registerNumber;
 	int32_t literal;
 	std::string symbol;
+	std::vector<char> ascii;
 	struct arg* next;
 };
 

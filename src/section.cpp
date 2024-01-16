@@ -108,7 +108,7 @@ void Section::putRelocationData(uint32_t offset, Symbol* symbol) {
 	if(symbol->isGlobal()) {
 		relocationTable.push_back({offset, symbol->getId(), 0});
 	} else {
-		relocationTable.push_back({offset, Assembler::getSymbolTable()[getName()]->getId(), symbol->getValue()});
+		relocationTable.push_back({offset, Assembler::getSymbolTable()[symbol->getSection()->getName()]->getId(), symbol->getValue()});
 	}
 }
 

@@ -1,6 +1,7 @@
 SRCDIR=src
 INCDIR=inc
 OBJDIR=build
+EXEDIR=bin
 
 CPP=g++
 CPPFLAGS=-I${INCDIR} -MMD -MP -Wall -g
@@ -11,9 +12,9 @@ SRC+=$(SRCDIR)/parser.cpp
 
 OBJ=$(addprefix $(OBJDIR)/, $(notdir $(SRC:.cpp=.o)))
 
-ASSEMBLER=build/assembler
-LINKER=build/linker
-EMULATOR=build/emulator
+ASSEMBLER=bin/assembler
+LINKER=bin/linker
+EMULATOR=bin/emulator
 
 all: assembler linker emulator
 
@@ -23,13 +24,13 @@ linker: $(LINKER)
 
 emulator: $(EMULATOR)
 
-$(ASSEMBLER): $(filter-out $(OBJDIR)/linkerMain.o $(OBJDIR)/emulatorMain.o, $(OBJ)) | $(OBJDIR)
+$(ASSEMBLER): $(filter-out $(OBJDIR)/linkerMain.o $(OBJDIR)/emulatorMain.o, $(OBJ)) | $(EXEDIR)
 	$(CPP) -o $@ $^
 
-$(LINKER): $(filter-out $(OBJDIR)/assemblerMain.o $(OBJDIR)/emulatorMain.o, $(OBJ)) | $(OBJDIR)
+$(LINKER): $(filter-out $(OBJDIR)/assemblerMain.o $(OBJDIR)/emulatorMain.o, $(OBJ)) | $(EXEDIR)
 	$(CPP) $(CPPFLAGS) -o $@ $^
 
-$(EMULATOR): $(filter-out $(OBJDIR)/assemblerMain.o $(OBJDIR)/linkerMain.o, $(OBJ)) | $(OBJDIR)
+$(EMULATOR): $(filter-out $(OBJDIR)/assemblerMain.o $(OBJDIR)/linkerMain.o, $(OBJ)) | $(EXEDIR)
 	$(CPP) $(CPPFLAGS) -o $@ $^
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(SRCDIR)/lexer.cpp $(SRCDIR)/parser.cpp | $(OBJDIR)
@@ -44,6 +45,9 @@ $(SRCDIR)/parser.cpp: misc/parser.y misc/lexer.l
 	bison misc/parser.y
 
 $(OBJDIR):
+	mkdir $@
+
+$(EXEDIR):
 	mkdir $@
 
 clean:

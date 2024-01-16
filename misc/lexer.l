@@ -39,6 +39,8 @@ ENDLINE (\n|\r\n)+
 COM   "#"[^\n\r]*
 WS    [ \t]*
 
+ASCII \".*\"
+
 %%
 {WS} {}
 {COM} {}
@@ -92,6 +94,13 @@ WS    [ \t]*
 {DECIMAL} {
     sscanf(yytext, "%d", &yylval.num);
     return TOKEN_NUM;
+}
+{ASCII} {
+    size_t size = strlen(yytext);
+    yylval.ident = (char*)malloc(size-1);
+    strncpy(yylval.ident, yytext+1, size-2);
+    yylval.ident[size-1] = '\0';
+    return TOKEN_ASCII;
 }
 %%
 

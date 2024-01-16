@@ -46,6 +46,7 @@
  * (in this case) is an int32_t. */
 %token <num>   TOKEN_NUM
 %token <ident> TOKEN_IDENT
+%token <ident> TOKEN_ASCII
 
 /* These are non-terminals in our grammar, by which I mean, parser
  * rules down below. Each of these also has a meaningful return type,
@@ -237,6 +238,42 @@
     newArgument->registerNumber = reg;
     newArgument->symbol = std::string($5);
     newArgument->next = nullptr;
+    $$ = newArgument;
+  }
+  | TOKEN_ASCII {
+    struct arg* newArgument = new arg();
+    newArgument->type = ASCII;
+    newArgument->next = nullptr;
+    for(uint32_t i = 0 ; i < strlen($1) ; i++) {
+      if($1[i]=='\\'){
+        if(i+1 < strlen($1)) {
+          switch($1[i+1]) {
+            case 'n':
+              newArgument->ascii.push_back('\n');
+              break;
+            case 't':
+              newArgument->ascii.push_back('\t');
+              break;
+            case '\\':
+              newArgument->ascii.push_back('\\');
+              break;
+            case '\'':
+              newArgument->ascii.push_back('\'');
+              break;
+            case '\"':
+              newArgument->ascii.push_back('\"');
+              break;
+            case '0':
+              newArgument->ascii.push_back('\0');
+              break;
+          }
+          i++;
+        }
+      } else {
+        newArgument->ascii.push_back($1[i]);
+      }
+    }
+    delete $1;
     $$ = newArgument;
   }
   ;

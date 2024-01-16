@@ -58,7 +58,7 @@ uint32_t Directive::getSize() {
 		return arguments[0]->literal;
 	} 
 	else if(keyword == "ascii") {
-
+		return arguments[0]->ascii.size();
 	} 
 	else if(keyword == "equ") {
 		return 0;
@@ -104,11 +104,14 @@ bool Directive::isValid() {
 	else if(keyword == "skip") {
 		if(arguments.size() != 1 || section == nullptr)
 			return false;
-		if(arguments[1]->type != LITERAL)
+		if(arguments[0]->type != LITERAL)
 			return false;
 	} 
 	else if(keyword == "ascii") {
-
+		if(arguments.size() != 1 || section == nullptr)
+			return false;
+		if(arguments[0]->type != ASCII)
+			return false;
 	} 
 	else if(keyword == "equ") {
 
@@ -173,6 +176,11 @@ int32_t Directive::firstPass() {
 		return 0;
 	} 
 	else if(keyword == "ascii") {
+		Section* currentSection = Assembler::getCurrentSection();
+		if(!currentSection)
+			return -1;
+		Assembler::incrementLocationCounter(this->getSize());
+		currentSection->addStatement(this);
 		return 0;
 	} 
 	else if(keyword == "equ") {
@@ -219,7 +227,10 @@ int32_t Directive::secondPass() {
 		}
 	} 
 	else if(keyword == "ascii") {
-
+		for(char c : arguments[0]->ascii) {
+			section->putData(&c, sizeof(char));
+			section->incrementLocationCounter(sizeof(char));
+		}
 	} 
 	else if(keyword == "equ") {
 
