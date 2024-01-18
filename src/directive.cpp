@@ -114,8 +114,13 @@ bool Directive::isValid() {
 			return false;
 	} 
 	else if(keyword == "equ") {
-
-	} 
+		if(arguments.size() != 2) 
+			return false;
+		if(arguments[0]->type != SYMBOL)
+			return false;
+		if(arguments[1]->type != LITERAL && arguments[1]->type != EXPRESSION && arguments[1]->type != SYMBOL)
+			return false;
+	} 		
 	else if(keyword == "end") {
 
 	}
@@ -184,6 +189,16 @@ int32_t Directive::firstPass() {
 		return 0;
 	} 
 	else if(keyword == "equ") {
+		if(arguments[1]->type == LITERAL) {
+			Assembler::getSymbolTable().insert({arguments[0]->symbol, new Symbol(arguments[0]->symbol, arguments[1]->literal, false, nullptr, COMMON)});
+			return 0;
+		}
+		if(arguments[1]->type == SYMBOL) {
+			arguments[1]->expression = arguments[1]->symbol;
+		}
+		if(Assembler::getUnresolvedExpressions().find(arguments[0]->symbol) != Assembler::getUnresolvedExpressions().end())
+			return -1;
+		Assembler::getUnresolvedExpressions().insert({arguments[0]->symbol, arguments[1]->expression});
 		return 0;
 	} 
 	else if(keyword == "end") {

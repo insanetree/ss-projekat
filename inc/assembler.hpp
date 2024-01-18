@@ -26,15 +26,19 @@ public:
 	static void insertStatement(Statement*);
 	static std::unordered_map<std::string, Symbol*>& getSymbolTable();
 	static std::unordered_map<std::string, Section*>& getSectionTable();
+	static std::map<std::string, std::string>& getUnresolvedExpressions();
 private:
 	static void printTextFIle();
 	static void printBinaryFile();
+	static int32_t resolveExpressions();
+	static int32_t calculate(uint32_t, std::string&);
 
 	static FILE* input;
 	static FILE* output;
 	static FILE* outputText;
 	static std::unordered_map<std::string, Symbol*> symbolTable;
 	static std::unordered_map<std::string, Section*> sectionTable;
+	static std::map<std::string, std::string> unresolvedExpressions;
 	static std::vector<Statement*> statements;
 	static uint32_t locationCounter;
 	static Section* currentSection;

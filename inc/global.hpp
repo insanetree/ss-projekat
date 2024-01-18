@@ -10,6 +10,7 @@
 #include <cstring>
 #include <unordered_map>
 #include <map>
+#include <stack>
 #include <mutex>
 #include <condition_variable>
 #include <vector>
@@ -19,6 +20,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstdint>
+#include <cctype>
 #include <stdexcept>
 
 class Symbol;
@@ -33,7 +35,8 @@ typedef enum {
 	REGISTER_LITERAL_MEMORY,
 	REGISTER_SYMBOL_MEMORY,
 	REGISTER_VALUE_CSR,
-	ASCII
+	ASCII,
+	EXPRESSION
 }argumentType;
 
 typedef enum : uint32_t {
@@ -52,6 +55,7 @@ struct arg {
 	int32_t literal;
 	std::string symbol;
 	std::vector<char> ascii;
+	std::string expression;
 	struct arg* next;
 };
 

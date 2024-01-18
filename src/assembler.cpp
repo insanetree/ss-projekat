@@ -12,6 +12,7 @@ FILE* Assembler::output = nullptr;
 FILE* Assembler::outputText = nullptr;
 std::unordered_map<std::string, Symbol*> Assembler::symbolTable;
 std::unordered_map<std::string, Section*> Assembler::sectionTable;
+std::map<std::string, std::string> Assembler::unresolvedExpressions;
 std::vector<Statement*> Assembler::statements;
 uint32_t Assembler::locationCounter = 0;
 Section* Assembler::currentSection = nullptr;
@@ -38,11 +39,9 @@ int32_t Assembler::firstPass() {
 }
 
 int32_t Assembler::secondPass() {
-	//add section names as symbols
-	/* for(auto& s : sectionTable) {
-		symbolTable.insert({s.first, new Symbol(s.first, 0, false, s.second, SECTION)});
-	} */
-	//TODO: resolve equ directives
+	if(resolveExpressions()) {
+		return -1;
+	}
 	for(Statement* s : statements) {
 		if(s->secondPass()) {
 			return -1;
@@ -81,6 +80,10 @@ std::unordered_map<std::string, Symbol*>& Assembler::getSymbolTable() {
 
 std::unordered_map<std::string, Section*>& Assembler::getSectionTable() {
 	return sectionTable;
+}
+
+std::map<std::string, std::string>& Assembler::getUnresolvedExpressions() {
+	return unresolvedExpressions;
 }
 
 uint32_t Assembler::getLocationCounter() {
@@ -208,4 +211,56 @@ void Assembler::printBinaryFile() {
 	delete mh;
 }
 
+int32_t Assembler::resolveExpressions() {
+	uint32_t num = unresolvedExpressions.size();
+	while(num>0) {
+		std::string symbol = unresolvedExpressions.begin()->first;
+		int32_t status = calculate(num, symbol);
+		if(status)
+			return -1;
+		num = unresolvedExpressions.size();
+	}
+	return 0;
+}
 
+int32_t Assembler::calculate(uint32_t numOfCalls, std::string& symbolName) {
+	if(numOfCalls == 0) 
+		return -1;
+	std::array<char, 256> expression;
+	char* token;
+	uint32_t operand1, operand2;
+	std::stack<uint32_t> expressionStack;
+	strcpy(expression.data(), unresolvedExpressions[symbolName].c_str());
+	token = strtok(expression.data(), " ");
+	while(token) {
+		if(isdigit(*token)) {
+			expressionStack.push(strtoul(token, nullptr, 16));
+		} else if(isalpha(*token)) {
+			std::string symbol(token);
+			if(unresolvedExpressions.find(symbol) != unresolvedExpressions.end())
+				if(calculate(numOfCalls-1, symbol)) return -2;
+			if(symbolTable.find(symbol) == symbolTable.end()) return -3;
+			expressionStack.push(symbolTable[symbol]->getValue());
+		} else if(!strcmp(token, "+")) {
+			operand2 = expressionStack.top();
+			expressionStack.pop();
+			operand1 = expressionStack.top();
+			expressionStack.pop();
+			expressionStack.push(operand1 + operand2);
+		} else if(!strcmp(token, "-")) {
+			operand2 = expressionStack.top();
+			expressionStack.pop();
+			operand1 = expressionStack.top();
+			expressionStack.pop();
+			expressionStack.push(operand1 - operand2);
+		} else {
+			return -4;
+		}
+		token = strtok(nullptr, " ");
+	}
+	if(expressionStack.size() != 1)
+		return -5;
+	unresolvedExpressions.erase(symbolName);
+	symbolTable.insert({symbolName, new Symbol(symbolName, expressionStack.top(), false, nullptr, COMMON)});
+	return 0;
+}

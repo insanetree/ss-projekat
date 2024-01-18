@@ -19,9 +19,10 @@
 /* This union defines the possible return types of both lexer and
  * parser rules. We'll refer to these later on by the field name */
 %union {
-	int32_t     num;
+	int32_t       num;
 	char*       ident;
-	struct arg *arg;
+	struct arg   *arg;
+  char postfix[256];
 }
 
 /* These define the tokens that we use in the lexer.
@@ -54,6 +55,8 @@
  * which is declared in the same way. */
 %type <arg> arg;
 %type <arg> argList;
+%type <postfix> expression;
+%type <postfix> operand;
 
 %%
   prog: body
@@ -277,5 +280,39 @@
     delete $1;
     $$ = newArgument;
   }
+  | expression {
+    struct arg *newArgument = new arg();
+    newArgument->type = EXPRESSION;
+    newArgument->expression = std::string($1);
+    newArgument->next = nullptr;
+    $$ = newArgument;
+  }
   ;
+
+  expression : operand {
+    sprintf($$, "%s", $1);
+  }
+  | operand TOKEN_PLUS expression {
+    sprintf($$, "%s %s +", $1, $3);
+  }
+  | operand TOKEN_MINUS expression {
+    sprintf($$, "%s %s -", $1, $3);
+  }
+  ;
+
+  operand : TOKEN_IDENT {
+    sprintf($$, "%s", $1);
+  }
+  | TOKEN_NUM {
+    sprintf($$, "0x%08x", $1);
+  }
+  | TOKEN_MINUS TOKEN_IDENT {
+    sprintf($$, "0x00000000 %s -", $2);
+  }
+  | TOKEN_MINUS TOKEN_NUM {
+    sprintf($$, "0x00000000 %08x -", $2);
+  }
+  | TOKEN_LPAR expression TOKEN_RPAR {
+    sprintf($$, "%s", $2);
+  }
 %%
