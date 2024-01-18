@@ -31,6 +31,7 @@
 %token TOKEN_LBRACKET
 %token TOKEN_RBRACKET
 %token TOKEN_PLUS
+%token TOKEN_MINUS;
 %token TOKEN_COMMA
 %token TOKEN_DOT
 %token TOKEN_COLON

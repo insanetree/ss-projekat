@@ -24,6 +24,7 @@
 LPAR  "("
 RPAR  ")"
 PLUS  "+"
+MINUS "-"
 COMMA ","
 DOT   "."
 COLON ":"
@@ -58,6 +59,9 @@ ASCII \".*\"
 }
 {PLUS} {
     return TOKEN_PLUS;
+}
+{MINUS} {
+    return TOKEN_MINUS;
 }
 {COMMA} {
     return TOKEN_COMMA;
