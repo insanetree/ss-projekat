@@ -26,7 +26,7 @@ void ObjectFile::populateSymbolTable() {
 			sym->setSection(localSectionTableById[ste.SECTION_ID+sectionIdOffset]);
 		localSymbolTableByName.insert({sym->getName(), sym});
 		localSymbolTableById.insert({sym->getId(), sym});
-		if(sym->isGlobal() && sym->getSection() != nullptr) exportedSymbols.insert({sym->getId(), sym});
+		if(sym->isGlobal() && sym->getSectionId() != -1) exportedSymbols.insert({sym->getId(), sym});
 		if(sym->isGlobal() && sym->getSectionId() == -1) importedSymbols.insert({sym->getName(), sym});
 		if(sym->getType() == SECTION) sectionSymbols.insert({sym->getId(), sym});
 	}

@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <thread>
+#include <chrono>
 
 bool Emulator::run = true;
 Memory Emulator::memory;
@@ -232,7 +233,43 @@ void Emulator::terminalRoutine() {
 }
 
 void Emulator::timerRoutine() {
-
+	uint32_t timer;
+	int64_t mils;
+	while (run) {
+		timer = memory.get32(TIM_CFG);
+		switch(timer) {
+			case 0x0:
+				mils = 500;
+				break;
+			case 0x1:
+				mils = 1000;
+				break;
+			case 0x2:
+				mils = 1500;
+				break;
+			case 0x3:
+				mils = 2000;
+				break;
+			case 0x4:
+				mils = 5000;
+				break;
+			case 0x5:
+				mils = 10000;
+				break;
+			case 0x6:
+				mils = 30000;
+				break;
+			case 0x7:
+				mils = 60000;
+				break;
+			default:
+				mils = 60000;
+				break;
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(mils));
+		timerInterrupt = true;
+	}
+	
 }
 
 void Emulator::printRegisters() {
