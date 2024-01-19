@@ -227,12 +227,17 @@ int32_t Assembler::calculate(uint32_t numOfCalls, std::string& symbolName) {
 	if(numOfCalls == 0) 
 		return -1;
 	std::array<char, 256> expression;
+	std::vector<char*> tokens;
 	char* token;
 	uint32_t operand1, operand2;
 	std::stack<uint32_t> expressionStack;
 	strcpy(expression.data(), unresolvedExpressions[symbolName].c_str());
 	token = strtok(expression.data(), " ");
 	while(token) {
+		tokens.push_back(token);
+		token = strtok(nullptr, " ");
+	}
+	for(char* token : tokens) {
 		if(isdigit(*token)) {
 			expressionStack.push(strtoul(token, nullptr, 16));
 		} else if(isalpha(*token)) {
@@ -256,7 +261,6 @@ int32_t Assembler::calculate(uint32_t numOfCalls, std::string& symbolName) {
 		} else {
 			return -4;
 		}
-		token = strtok(nullptr, " ");
 	}
 	if(expressionStack.size() != 1)
 		return -5;

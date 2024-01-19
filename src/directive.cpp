@@ -190,8 +190,9 @@ int32_t Directive::firstPass() {
 	} 
 	else if(keyword == "equ") {
 		if(arguments[1]->type == LITERAL) {
-			Assembler::getSymbolTable().insert({arguments[0]->symbol, new Symbol(arguments[0]->symbol, arguments[1]->literal, false, nullptr, COMMON)});
-			return 0;
+			char number[20];
+			sprintf(number, "0x%08x", arguments[1]->literal);
+			arguments[1]->expression = std::string(number);
 		}
 		if(arguments[1]->type == SYMBOL) {
 			arguments[1]->expression = arguments[1]->symbol;
