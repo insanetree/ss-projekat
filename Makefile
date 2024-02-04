@@ -4,7 +4,7 @@ OBJDIR=build
 EXEDIR=bin
 
 CPP=g++
-CPPFLAGS=-I${INCDIR} -MMD -MP -Wall -g
+CPPFLAGS=-I${INCDIR} -MMD -MP -Wall -g -pthread
 
 SRC=$(wildcard $(SRCDIR)/*.cpp)
 SRC+=$(SRCDIR)/lexer.cpp
@@ -25,7 +25,7 @@ linker: $(LINKER)
 emulator: $(EMULATOR)
 
 $(ASSEMBLER): $(filter-out $(OBJDIR)/linkerMain.o $(OBJDIR)/emulatorMain.o, $(OBJ)) | $(EXEDIR)
-	$(CPP) -o $@ $^
+	$(CPP) $(CPPFLAGS) -o $@ $^
 
 $(LINKER): $(filter-out $(OBJDIR)/assemblerMain.o $(OBJDIR)/emulatorMain.o, $(OBJ)) | $(EXEDIR)
 	$(CPP) $(CPPFLAGS) -o $@ $^
