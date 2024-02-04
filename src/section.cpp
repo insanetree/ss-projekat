@@ -76,7 +76,7 @@ int32_t Section::secondPass() {
 
 	for(auto& sym : symbolPool) {
 		Symbol* s = Assembler::getSymbolTable()[sym.first];
-		value = (s->getType()==COMMON)?(s->getValue()):(0);
+		value = (s->getType()==ABS)?(s->getValue()):(0);
 		binaryData.putData(&value, sizeof(uint32_t));
 	}
 	for(auto& lit : literalPool) {
@@ -103,7 +103,7 @@ void Section::putDataReverse(void* ptr, size_t size) {
 }
 
 void Section::putRelocationData(uint32_t offset, Symbol* symbol) {
-	if(symbol->getType() == COMMON)
+	if(symbol->getType() == ABS)
 		return;
 	if(symbol->isGlobal()) {
 		relocationTable.push_back({offset, symbol->getId(), 0});

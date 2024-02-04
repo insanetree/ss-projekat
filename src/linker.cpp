@@ -197,7 +197,7 @@ void Linker::writeRelocatableFile(const std::string& filename) {
 				sym.second->getValue(),
 				sym.second->getSectionId(),
 				sym.second->isGlobal(),
-				(sym.second->getType() == NOTYPE)?("NOTYPE"):((sym.second->getType() == SECTION)?("SECTION"):("COMMON"))
+				(sym.second->getType() == NOTYPE)?("NOTYPE"):((sym.second->getType() == SECTION)?("SECTION"):("ABS"))
 			);
 	}
 	fprintf(outputText, "SECTION_TABLE\n");

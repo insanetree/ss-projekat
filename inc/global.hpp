@@ -42,7 +42,7 @@ typedef enum {
 typedef enum : uint32_t {
 	NOTYPE = 0,
 	SECTION,
-	COMMON
+	ABS
 }symbolType;
 
 typedef enum : uint32_t {

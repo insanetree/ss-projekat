@@ -61,7 +61,7 @@ Section* Symbol::getSection() {
 }
 
 int32_t Symbol::getSectionId() {
-	if(type == COMMON)
+	if(type == ABS)
 		return 0;
 	if(section)
 		return section->getId();

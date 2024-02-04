@@ -119,7 +119,7 @@ void Assembler::printTextFIle() {
 				sym.second->getValue(),
 				sym.second->getSectionId(),
 				sym.second->isGlobal(),
-				(sym.second->getType() == NOTYPE)?("NOTYPE"):((sym.second->getType() == SECTION)?("SECTION"):("COMMON"))
+				(sym.second->getType() == NOTYPE)?("NOTYPE"):((sym.second->getType() == SECTION)?("SECTION"):("ABS"))
 			);
 	}
 	fprintf(outputText, "SECTION_TABLE\n");
@@ -265,6 +265,6 @@ int32_t Assembler::calculate(uint32_t numOfCalls, std::string& symbolName) {
 	if(expressionStack.size() != 1)
 		return -5;
 	unresolvedExpressions.erase(symbolName);
-	symbolTable.insert({symbolName, new Symbol(symbolName, expressionStack.top(), false, nullptr, COMMON)});
+	symbolTable.insert({symbolName, new Symbol(symbolName, expressionStack.top(), false, nullptr, ABS)});
 	return 0;
 }
