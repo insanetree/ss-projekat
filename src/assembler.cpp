@@ -224,8 +224,10 @@ int32_t Assembler::resolveExpressions() {
 }
 
 int32_t Assembler::calculate(uint32_t numOfCalls, std::string& symbolName) {
-	if(numOfCalls == 0) 
+	if(numOfCalls == 0) {
+		std::cerr<<"Circular definition of ABS symbols"<<std::endl;
 		return -1;
+	}
 	std::array<char, 256> expression;
 	std::vector<char*> tokens;
 	char* token;
@@ -245,6 +247,10 @@ int32_t Assembler::calculate(uint32_t numOfCalls, std::string& symbolName) {
 			if(unresolvedExpressions.find(symbol) != unresolvedExpressions.end())
 				if(calculate(numOfCalls-1, symbol)) return -2;
 			if(symbolTable.find(symbol) == symbolTable.end()) return -3;
+			if(!symbolTable[symbol]->getSection() && symbolTable[symbol]->getType() != ABS) {
+				std::cerr<<"Usage of extern symbol in equ expression"<<std::endl;
+				return -4;
+			}
 			expressionStack.push(symbolTable[symbol]->getValue());
 		} else if(!strcmp(token, "+")) {
 			operand2 = expressionStack.top();
@@ -259,6 +265,7 @@ int32_t Assembler::calculate(uint32_t numOfCalls, std::string& symbolName) {
 			expressionStack.pop();
 			expressionStack.push(operand1 - operand2);
 		} else {
+			std::cerr<<"Unrecognized token in expression of symbol "<<symbolName<<std::endl;
 			return -4;
 		}
 	}
